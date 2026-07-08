@@ -1,1 +1,204 @@
 son STOP looking at my code!
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>voidz snake</title>
+	<style>
+		:root{--bg:#0b1220;--panel:#0f1724;--accent:#22c55e;--muted:#94a3b8}
+		html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+		body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#021024,#07122a);color:#e6eef6}
+		.wrap{width:min(640px,94vw);background:var(--panel);padding:18px;border-radius:10px;box-shadow:0 6px 30px rgba(2,6,23,.6)}
+		header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+		h1{font-size:18px;margin:0}
+		.meta{display:flex;gap:10px;align-items:center}
+		.score{color:var(--accent);font-weight:700}
+		canvas{display:block;background:linear-gradient(180deg,#071022,#07142a);border-radius:6px;width:100%;height:auto}
+		.controls{margin-top:10px;display:flex;gap:8px;align-items:center}
+		button{background:#0b1220;border:1px solid #152035;color:#d9eef5;padding:8px 10px;border-radius:6px;cursor:pointer}
+		.hint{color:var(--muted);font-size:13px}
+		@media (max-width:420px){h1{font-size:16px}}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<header>
+			<h1>voidz snake</h1>
+			<div class="meta">
+				<div class="hint">Score: <span id="score" class="score">0</span></div>
+				<button id="startBtn">Start</button>
+				<button id="restartBtn">Restart</button>
+			</div>
+		</header>
+
+		<canvas id="game" width="480" height="480" aria-label="Snake game"></canvas>
+		<div class="controls">
+			<div class="hint">Use arrow keys or WASD to move. Tap on-screen for mobile.</div>
+		</div>
+	</div>
+
+	<script>
+		const canvas = document.getElementById('game');
+		const ctx = canvas.getContext('2d');
+		const startBtn = document.getElementById('startBtn');
+		const restartBtn = document.getElementById('restartBtn');
+		const scoreEl = document.getElementById('score');
+
+		const initialCells = 24; // number of cells per row/column
+		let gridSize, cols, rows; // computed in resizeCanvas()
+
+		let snake, apple, dir, running, score, tickInterval;
+		let intervalMs = 120; // base tick interval (ms) — will decrease as apples are eaten
+
+		// Audio: lazy-create AudioContext to avoid autoplay blocking
+		let audioCtx = null;
+		function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+		function playBeep(freq, duration=100, type='sine'){
+			try{
+				ensureAudio();
+				const o = audioCtx.createOscillator();
+				const g = audioCtx.createGain();
+				o.type = type; o.frequency.value = freq;
+				o.connect(g); g.connect(audioCtx.destination);
+				const now = audioCtx.currentTime;
+				g.gain.setValueAtTime(0.0001, now);
+				g.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+				o.start(now);
+				g.gain.exponentialRampToValueAtTime(0.0001, now + duration/1000);
+				o.stop(now + duration/1000 + 0.02);
+			}catch(e){ /* ignore audio errors */ }
+		}
+
+		function reset(){
+			snake = [{x: Math.floor(cols/2), y: Math.floor(rows/2)}];
+			dir = {x:1,y:0};
+			placeApple();
+			score = 0;
+			running = false;
+			updateScore();
+			clearInterval(tickInterval);
+			intervalMs = 120;
+			draw();
+		}
+
+		function placeApple(){
+			while(true){
+				const x = Math.floor(Math.random()*cols);
+				const y = Math.floor(Math.random()*rows);
+				if(!snake.some(s=>s.x===x && s.y===y)){ apple = {x,y}; break }
+			}
+		}
+
+		function start(){
+			if(running) return;
+			running=true;
+			if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+			tickInterval = setInterval(tick, intervalMs);
+		}
+		function restart(){ reset(); start(); }
+
+		function tick(){
+			const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+			// wrap-around
+			head.x = (head.x + cols) % cols;
+			head.y = (head.y + rows) % rows;
+
+			// self-collision
+			if(snake.some(s => s.x===head.x && s.y===head.y)){
+				gameOver(); return
+			}
+
+			snake.unshift(head);
+			// eat apple
+			if(head.x===apple.x && head.y===apple.y){
+				score++; updateScore();
+				// play eat sound (two quick beeps)
+				playBeep(900,70,'sawtooth'); setTimeout(()=>playBeep(1200,60,'sine'),70);
+				// make the game speed up a bit (lower interval)
+				intervalMs = Math.max(40, intervalMs - 6);
+				placeApple();
+				if(running){ clearInterval(tickInterval); tickInterval = setInterval(tick, intervalMs); }
+			}
+			else snake.pop();
+
+			draw();
+		}
+
+		function gameOver(){
+			running=false; clearInterval(tickInterval);
+			playBeep(160,400,'sine');
+			ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+			ctx.fillStyle='#fff'; ctx.font='22px sans-serif'; ctx.textAlign='center';
+			ctx.fillText('Game Over — press Restart', canvas.width/2, canvas.height/2);
+		}
+
+		function updateScore(){ scoreEl.textContent = score }
+
+		function draw(){
+			// background
+			ctx.clearRect(0,0,canvas.width,canvas.height);
+			// grid optional subtle
+			// draw apple (purple)
+			ctx.fillStyle = '#a78bfa';
+			ctx.fillRect(apple.x*gridSize+2, apple.y*gridSize+2, gridSize-4, gridSize-4);
+
+			// draw snake
+			for(let i=0;i<snake.length;i++){
+				const s = snake[i];
+				ctx.fillStyle = i? '#16a34a' : '#86efac';
+				ctx.fillRect(s.x*gridSize, s.y*gridSize, gridSize-1, gridSize-1);
+			}
+		}
+
+		// input
+		window.addEventListener('keydown', e=>{
+			const k = e.key;
+			if(['ArrowUp','w','W'].includes(k) && dir.y!==1){ dir={x:0,y:-1} }
+			if(['ArrowDown','s','S'].includes(k) && dir.y!==-1){ dir={x:0,y:1} }
+			if(['ArrowLeft','a','A'].includes(k) && dir.x!==1){ dir={x:-1,y:0} }
+			if(['ArrowRight','d','D'].includes(k) && dir.x!==-1){ dir={x:1,y:0} }
+			if(k===' '){ if(!running) start(); }
+		});
+
+		// simple mobile touch controls: tap left/right/top/bottom half
+		canvas.addEventListener('touchstart', e=>{
+			const t = e.touches[0];
+			const rect = canvas.getBoundingClientRect();
+			const x = t.clientX - rect.left; const y = t.clientY - rect.top;
+			const cx = rect.width/2, cy = rect.height/2;
+			const dx = x-cx, dy = y-cy;
+			if(Math.abs(dx)>Math.abs(dy)) dir = dx>0?{x:1,y:0}:{x:-1,y:0}; else dir = dy>0?{x:0,y:1}:{x:0,y:-1};
+			if(!running) start();
+		});
+
+		startBtn.addEventListener('click', start);
+		restartBtn.addEventListener('click', restart);
+
+		// ensure canvas scales nicely on high-DPI displays and compute grid
+		function resizeCanvas(){
+			const ratio = window.devicePixelRatio || 1;
+			// make canvas square and fit within wrapper / viewport
+			const displaySize = Math.min(640, Math.floor(window.innerWidth * 0.9));
+			canvas.style.width = displaySize + 'px';
+			canvas.style.height = displaySize + 'px';
+			// set internal pixel size for crisp rendering on high-DPI displays
+			canvas.width = displaySize * ratio;
+			canvas.height = displaySize * ratio;
+			// scale drawing operations so coordinates are in CSS pixels
+			ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+			// compute grid based on desired number of cells
+			cols = initialCells;
+			rows = initialCells;
+			gridSize = displaySize / cols;
+			draw();
+		}
+		window.addEventListener('resize', resizeCanvas);
+		resizeCanvas();
+
+		// initialize after sizing is computed
+		reset();
+	</script>
+</body>
+</html>
+
