@@ -2,9 +2,126 @@
 <html>
 <head>
     <title>voidzcode</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: black;
+            overflow: hidden;
+            font-family: monospace;
+        }
+
+        #matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .content {
+            color: white;
+            text-align: center;
+            margin-top: 35vh;
+            text-shadow: 0 0 15px #00ff66;
+        }
+
+        h1 {
+            font-size: 70px;
+            color: #00ff66;
+        }
+
+        p {
+            font-size: 25px;
+        }
+    </style>
 </head>
-<body style="background:#111;color:white;font-family:sans-serif;text-align:center;margin-top:100px;">
-    <h1>Welcome to voidzcode!</h1>
-    <p>My website is incomplete and currently includes. nothing. Enjoy my nice background i guess :)</p>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="content">
+    <h1>voidzcode</h1>
+    <p>welcome to the void.</p>
+</div>
+
+
+<script>
+
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener("resize", resize);
+
+
+const characters = "VOIDZCODE01<>[]{}$#@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const fontSize = 18;
+let columns = canvas.width / fontSize;
+
+let drops = [];
+
+function setup() {
+    columns = canvas.width / fontSize;
+    drops = [];
+
+    for (let i = 0; i < columns; i++) {
+        drops[i] = Math.random() * canvas.height / fontSize;
+    }
+}
+
+setup();
+
+
+function draw() {
+
+    // Fade effect
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+    ctx.font = fontSize + "px monospace";
+    ctx.fillStyle = "#00ff66";
+
+
+    for (let i = 0; i < drops.length; i++) {
+
+        const char = characters[Math.floor(Math.random() * characters.length)];
+
+        ctx.fillText(
+            char,
+            i * fontSize,
+            drops[i] * fontSize
+        );
+
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+
+        drops[i]++;
+    }
+}
+
+
+setInterval(draw, 35);
+
+window.addEventListener("resize", setup);
+
+</script>
+
 </body>
 </html>
