@@ -28,7 +28,7 @@
         .content {
             color: white;
             text-align: center;
-            margin-top: 35vh;
+            margin-top: 25vh;
             text-shadow: 0 0 15px #00ff66;
         }
 
@@ -37,33 +37,25 @@
             color: #00ff66;
         }
 
-        p {
-            font-size: 25px;
-        }
-
         #terminal-output {
             margin: 20px auto 0;
             max-width: 780px;
             min-height: 11.5em;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             align-items: center;
             text-align: center;
             font-size: 25px;
             line-height: 1.6;
-            position: relative;
             overflow: hidden;
-            padding-top: 4px;
         }
 
         .terminal-line {
             min-height: 1.6em;
+            width: 100%;
             white-space: pre-wrap;
-            transform: translateY(0);
             opacity: 1;
             transition: transform 0.7s ease, opacity 0.7s ease;
-            width: 100%;
         }
 
         .terminal-line.completed-line {
@@ -73,16 +65,6 @@
         .terminal-line.scroll-up {
             transform: translateY(-1.4em);
             opacity: 0;
-        }
-
-        .terminal-line.current-line {
-            transform: translateY(1.2em);
-            opacity: 0;
-        }
-
-        .terminal-line.current-line.ready {
-            transform: translateY(0);
-            opacity: 1;
         }
 
         .cursor {
@@ -98,22 +80,79 @@
                 border-color: transparent;
             }
         }
+
+
+        /* GAME BUTTON */
+
+        .game-button {
+            display: inline-block;
+            margin-top: 35px;
+            padding: 15px 35px;
+
+            font-size: 25px;
+            font-family: monospace;
+
+            color: #00ff66;
+            background: rgba(0,0,0,0.7);
+
+            border: 2px solid #00ff66;
+            text-decoration: none;
+
+            text-shadow: 0 0 10px #00ff66;
+            box-shadow: 0 0 15px #00ff66;
+
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+
+            transition: 1s ease;
+        }
+
+
+        .game-button.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+
+        .game-button:hover {
+            background: #00ff66;
+            color: black;
+            box-shadow: 0 0 30px #00ff66;
+        }
+
     </style>
 </head>
+
 
 <body>
 
 <canvas id="matrix"></canvas>
 
+
 <div class="content">
+
     <h1>voidzcode</h1>
+
     <div id="terminal-output"></div>
+
+
+    <a id="snake-button" class="game-button" href="games/snake/">
+        🐍 PLAY SNAKE
+    </a>
+
 </div>
+
 
 
 <script>
 
+
+// TERMINAL BOOT
+
 const terminalOutput = document.getElementById("terminal-output");
+
 const terminalLines = [
     "sudo grant access to the voidzcode repository.",
     "ACCESS GRANTED.",
@@ -127,171 +166,275 @@ const terminalLines = [
     "welcome to the void."
 ];
 
+
 let activeLine = "";
 let lineIndex = 0;
 let charIndex = 0;
 let currentLineEl = null;
 
+
+
 function escapeHtml(text) {
     return text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;");
+        .replace(/>/g, "&gt;");
 }
 
+
+
 function renderCurrentLine() {
+
     if (!currentLineEl) {
         currentLineEl = document.createElement("div");
-        currentLineEl.className = "terminal-line current-line";
+        currentLineEl.className = "terminal-line";
         terminalOutput.appendChild(currentLineEl);
     }
 
-    currentLineEl.innerHTML = `${escapeHtml(activeLine)}<span class="cursor"></span>`;
 
-    requestAnimationFrame(() => {
-        currentLineEl.classList.add("ready");
-    });
+    currentLineEl.innerHTML =
+        `${escapeHtml(activeLine)}<span class="cursor"></span>`;
 }
 
+
+
 function finalizeLine() {
+
     if (!currentLineEl) return;
 
-    currentLineEl.classList.remove("current-line");
-    currentLineEl.classList.remove("ready");
+
+    currentLineEl.innerHTML =
+        escapeHtml(activeLine);
+
+
     currentLineEl.classList.add("completed-line");
 
-    const completedLines = terminalOutput.querySelectorAll(".terminal-line.completed-line");
-    completedLines.forEach((line, index) => {
-        if (index < completedLines.length - 1) {
-            line.classList.add("scroll-up");
-        }
-    });
-
-    setTimeout(() => {
-        completedLines.forEach((line) => {
-            if (line.classList.contains("scroll-up")) {
-                line.remove();
-            }
-        });
-    }, 700);
 
     currentLineEl = null;
 }
 
+
+
+function showGames() {
+
+    setTimeout(() => {
+
+        document
+        .getElementById("snake-button")
+        .classList.add("show");
+
+    }, 1000);
+
+}
+
+
+
 function typeTerminal() {
+
+
     const currentLine = terminalLines[lineIndex];
 
-    if (lineIndex === terminalLines.length - 1 && !matrixActive) {
-        startMatrix();
-    }
 
     if (charIndex < currentLine.length) {
-        activeLine += currentLine.charAt(charIndex);
+
+
+        activeLine += currentLine[charIndex];
+
         charIndex++;
+
         renderCurrentLine();
+
+
         setTimeout(typeTerminal, 45);
+
         return;
+
     }
+
+
 
     finalizeLine();
+
+
+
+    if (lineIndex === terminalLines.length - 1) {
+
+        showGames();
+
+    }
+
+
+
     activeLine = "";
+
     charIndex = 0;
+
     lineIndex++;
 
+
+
     if (lineIndex < terminalLines.length) {
+
+
         setTimeout(() => {
+
             renderCurrentLine();
-            setTimeout(typeTerminal, 700);
+
+            setTimeout(typeTerminal, 500);
+
         }, 250);
+
     }
+
 }
 
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        renderCurrentLine();
-        setTimeout(typeTerminal, 500);
-    }, 400);
-});
+
+
+window.onload = () => {
+
+    setTimeout(typeTerminal, 700);
+
+};
+
+
+
+
+
+// MATRIX BACKGROUND
+
 
 const canvas = document.getElementById("matrix");
+
 const ctx = canvas.getContext("2d");
 
+
 function resize() {
+
     canvas.width = window.innerWidth;
+
     canvas.height = window.innerHeight;
+
 }
+
 
 resize();
-window.addEventListener("resize", resize);
 
 
-const characters = "VOIDZCODE01<>[]{}$#@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const characters =
+"VOIDZCODE01<>[]{}$#@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 
 const fontSize = 18;
-let columns = canvas.width / fontSize;
+
+
+let columns;
+
 let drops = [];
-let matrixActive = false;
-let matrixAnimationFrame = null;
+
+
 
 function setupMatrix() {
-    columns = canvas.width / fontSize;
+
+    columns = Math.floor(canvas.width / fontSize);
+
     drops = [];
 
+
     for (let i = 0; i < columns; i++) {
-        drops[i] = Math.random() * canvas.height / fontSize;
+
+        drops[i] =
+        Math.random() * canvas.height / fontSize;
+
     }
+
 }
 
-function startMatrix() {
-    if (matrixActive) return;
 
-    matrixActive = true;
-    setupMatrix();
 
-    function drawMatrix() {
-        if (!matrixActive) return;
+setupMatrix();
 
-        ctx.fillStyle = "rgba(0,0,0,0.08)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.font = fontSize + "px monospace";
-        ctx.fillStyle = "#00ff66";
 
-        for (let i = 0; i < drops.length; i++) {
-            const char = characters[Math.floor(Math.random() * characters.length)];
+function drawMatrix() {
 
-            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
 
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
+    ctx.fillStyle =
+    "rgba(0,0,0,0.08)";
 
-            drops[i]++;
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+
+		ctx.font = fontSize + "px monospace";
+
+		ctx.fillStyle = "#00ff66";
+		ctx.textBaseline = 'top';
+
+
+
+    for (let i = 0; i < drops.length; i++) {
+
+
+        const char =
+        characters[
+            Math.floor(
+                Math.random() * characters.length
+            )
+        ];
+
+
+
+        ctx.fillText(
+            char,
+            i * fontSize,
+            drops[i] * fontSize
+        );
+
+
+
+        if (
+            drops[i] * fontSize > canvas.height
+            &&
+            Math.random() > 0.975
+        ) {
+
+            drops[i] = 0;
+
         }
 
-        matrixAnimationFrame = requestAnimationFrame(drawMatrix);
+
+        drops[i]++;
+
     }
 
-    matrixAnimationFrame = requestAnimationFrame(drawMatrix);
+
+
+    requestAnimationFrame(drawMatrix);
+
 }
 
-function stopMatrix() {
-    matrixActive = false;
-    if (matrixAnimationFrame) {
-        cancelAnimationFrame(matrixAnimationFrame);
-        matrixAnimationFrame = null;
-    }
-}
+
+
+drawMatrix();
+
+
 
 window.addEventListener("resize", () => {
+
     resize();
-    if (matrixActive) {
-        setupMatrix();
-    }
+
+    setupMatrix();
+
 });
 
+
 </script>
+
 
 </body>
 </html>
