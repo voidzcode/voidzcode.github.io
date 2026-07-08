@@ -40,6 +40,64 @@
         p {
             font-size: 25px;
         }
+
+        #terminal-output {
+            margin: 20px auto 0;
+            max-width: 780px;
+            min-height: 11.5em;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            font-size: 25px;
+            line-height: 1.6;
+            position: relative;
+            overflow: hidden;
+            padding-top: 4px;
+        }
+
+        .terminal-line {
+            min-height: 1.6em;
+            white-space: pre-wrap;
+            transform: translateY(0);
+            opacity: 1;
+            transition: transform 0.7s ease, opacity 0.7s ease;
+            width: 100%;
+        }
+
+        .terminal-line.completed-line {
+            opacity: 0.95;
+        }
+
+        .terminal-line.scroll-up {
+            transform: translateY(-1.4em);
+            opacity: 0;
+        }
+
+        .terminal-line.current-line {
+            transform: translateY(1.2em);
+            opacity: 0;
+        }
+
+        .terminal-line.current-line.ready {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 0.6em;
+            margin-left: 2px;
+            border-right: 2px solid #00ff66;
+            animation: blink 0.8s steps(1) infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
     </style>
 </head>
 
@@ -49,11 +107,112 @@
 
 <div class="content">
     <h1>voidzcode</h1>
-    <p>welcome to the void.</p>
+    <div id="terminal-output"></div>
 </div>
 
 
 <script>
+
+const terminalOutput = document.getElementById("terminal-output");
+const terminalLines = [
+    "sudo grant access to the voidzcode repository.",
+    "ACCESS GRANTED.",
+    "running voidzcode.",
+    "initialization complete.",
+    "detecting user.",
+    "detected user: anonymous.",
+    "running voidzcode access protocol.",
+    "all tasks completed successfully!",
+    "terminating terminal session.",
+    "welcome to the void."
+];
+
+let activeLine = "";
+let lineIndex = 0;
+let charIndex = 0;
+let currentLineEl = null;
+
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;");
+}
+
+function renderCurrentLine() {
+    if (!currentLineEl) {
+        currentLineEl = document.createElement("div");
+        currentLineEl.className = "terminal-line current-line";
+        terminalOutput.appendChild(currentLineEl);
+    }
+
+    currentLineEl.innerHTML = `${escapeHtml(activeLine)}<span class="cursor"></span>`;
+
+    requestAnimationFrame(() => {
+        currentLineEl.classList.add("ready");
+    });
+}
+
+function finalizeLine() {
+    if (!currentLineEl) return;
+
+    currentLineEl.classList.remove("current-line");
+    currentLineEl.classList.remove("ready");
+    currentLineEl.classList.add("completed-line");
+
+    const completedLines = terminalOutput.querySelectorAll(".terminal-line.completed-line");
+    completedLines.forEach((line, index) => {
+        if (index < completedLines.length - 1) {
+            line.classList.add("scroll-up");
+        }
+    });
+
+    setTimeout(() => {
+        completedLines.forEach((line) => {
+            if (line.classList.contains("scroll-up")) {
+                line.remove();
+            }
+        });
+    }, 700);
+
+    currentLineEl = null;
+}
+
+function typeTerminal() {
+    const currentLine = terminalLines[lineIndex];
+
+    if (lineIndex === terminalLines.length - 1 && !matrixActive) {
+        startMatrix();
+    }
+
+    if (charIndex < currentLine.length) {
+        activeLine += currentLine.charAt(charIndex);
+        charIndex++;
+        renderCurrentLine();
+        setTimeout(typeTerminal, 45);
+        return;
+    }
+
+    finalizeLine();
+    activeLine = "";
+    charIndex = 0;
+    lineIndex++;
+
+    if (lineIndex < terminalLines.length) {
+        setTimeout(() => {
+            renderCurrentLine();
+            setTimeout(typeTerminal, 700);
+        }, 250);
+    }
+}
+
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        renderCurrentLine();
+        setTimeout(typeTerminal, 500);
+    }, 400);
+});
 
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
@@ -71,10 +230,11 @@ const characters = "VOIDZCODE01<>[]{}$#@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 const fontSize = 18;
 let columns = canvas.width / fontSize;
-
 let drops = [];
+let matrixActive = false;
+let matrixAnimationFrame = null;
 
-function setup() {
+function setupMatrix() {
     columns = canvas.width / fontSize;
     drops = [];
 
@@ -83,43 +243,53 @@ function setup() {
     }
 }
 
-setup();
+function startMatrix() {
+    if (matrixActive) return;
 
+    matrixActive = true;
+    setupMatrix();
 
-function draw() {
+    function drawMatrix() {
+        if (!matrixActive) return;
 
-    // Fade effect
-    ctx.fillStyle = "rgba(0,0,0,0.08)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(0,0,0,0.08)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        ctx.font = fontSize + "px monospace";
+        ctx.fillStyle = "#00ff66";
 
-    ctx.font = fontSize + "px monospace";
-    ctx.fillStyle = "#00ff66";
+        for (let i = 0; i < drops.length; i++) {
+            const char = characters[Math.floor(Math.random() * characters.length)];
 
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
 
-    for (let i = 0; i < drops.length; i++) {
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
 
-        const char = characters[Math.floor(Math.random() * characters.length)];
-
-        ctx.fillText(
-            char,
-            i * fontSize,
-            drops[i] * fontSize
-        );
-
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
+            drops[i]++;
         }
 
-        drops[i]++;
+        matrixAnimationFrame = requestAnimationFrame(drawMatrix);
+    }
+
+    matrixAnimationFrame = requestAnimationFrame(drawMatrix);
+}
+
+function stopMatrix() {
+    matrixActive = false;
+    if (matrixAnimationFrame) {
+        cancelAnimationFrame(matrixAnimationFrame);
+        matrixAnimationFrame = null;
     }
 }
 
-
-setInterval(draw, 35);
-
-window.addEventListener("resize", setup);
+window.addEventListener("resize", () => {
+    resize();
+    if (matrixActive) {
+        setupMatrix();
+    }
+});
 
 </script>
 
