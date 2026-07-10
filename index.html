@@ -10,31 +10,72 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: black;
+            min-height: 100vh;
             overflow: hidden;
-            font-family: monospace;
+            font-family: "Segoe UI", monospace;
+            background: radial-gradient(circle at top, #04170c 0%, #000 45%, #010101 100%);
+            color: #eafff1;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(0,255,102,0.08), transparent 45%, rgba(0,255,102,0.04));
+            pointer-events: none;
+            z-index: -2;
+            animation: drift 16s ease-in-out infinite alternate;
         }
 
         #matrix {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100vw;
             height: 100vh;
             z-index: -1;
+            opacity: 0.9;
         }
 
         .content {
-            color: white;
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
             text-align: center;
-            margin-top: 25vh;
-            text-shadow: 0 0 15px #00ff66;
+            text-shadow: 0 0 15px rgba(0,255,102,0.35);
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 900ms ease, transform 900ms ease;
+        }
+
+        .content.ready {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         h1 {
-            font-size: 70px;
+            font-size: clamp(2.8rem, 7vw, 4.6rem);
             color: #00ff66;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            animation: glow 2.4s ease-in-out infinite alternate;
+        }
+
+        .subtitle {
+            margin-top: 0.8rem;
+            font-size: clamp(1rem, 2.3vw, 1.2rem);
+            color: rgba(234, 255, 241, 0.9);
+            letter-spacing: 0.08em;
+            opacity: 0.95;
         }
 
         #terminal-output {
@@ -45,7 +86,7 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            font-size: 25px;
+            font-size: clamp(1.05rem, 2.3vw, 1.45rem);
             line-height: 1.6;
             overflow: hidden;
         }
@@ -55,11 +96,13 @@
             width: 100%;
             white-space: pre-wrap;
             opacity: 1;
+            transform: translateY(8px);
             transition: transform 0.7s ease, opacity 0.7s ease;
         }
 
         .terminal-line.completed-line {
             opacity: 0.95;
+            transform: translateY(0);
         }
 
         .terminal-line.scroll-up {
@@ -75,53 +118,74 @@
             animation: blink 0.8s steps(1) infinite;
         }
 
+        .game-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-top: 30px;
+            padding: 14px 28px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            color: #00ff66;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 255, 102, 0.65);
+            border-radius: 999px;
+            text-decoration: none;
+            text-shadow: 0 0 10px rgba(0,255,102,0.45);
+            box-shadow: 0 0 18px rgba(0,255,102,0.15);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+            transition: all 500ms cubic-bezier(0.2, 0.9, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        .game-button.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+            animation: pulseGlow 2.2s ease-in-out infinite alternate;
+        }
+
+        .game-button:hover {
+            background: #00ff66;
+            color: black;
+            box-shadow: 0 0 26px rgba(0,255,102,0.45);
+            transform: translateY(-2px) scale(1.02);
+        }
+
         @keyframes blink {
             50% {
                 border-color: transparent;
             }
         }
 
-
-        /* GAME BUTTON */
-
-        .game-button {
-            display: inline-block;
-            margin-top: 35px;
-            padding: 15px 35px;
-
-            font-size: 25px;
-            font-family: monospace;
-
-            color: #00ff66;
-            background: rgba(0,0,0,0.7);
-
-            border: 2px solid #00ff66;
-            text-decoration: none;
-
-            text-shadow: 0 0 10px #00ff66;
-            box-shadow: 0 0 15px #00ff66;
-
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(20px);
-
-            transition: 1s ease;
+        @keyframes glow {
+            from { text-shadow: 0 0 8px rgba(0,255,102,0.55); }
+            to { text-shadow: 0 0 20px rgba(0,255,102,0.95); }
         }
 
-
-        .game-button.show {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 8px rgba(0,255,102,0.2); }
+            to { box-shadow: 0 0 24px rgba(0,255,102,0.45); }
         }
 
-
-        .game-button:hover {
-            background: #00ff66;
-            color: black;
-            box-shadow: 0 0 30px #00ff66;
+        @keyframes drift {
+            from { transform: translate3d(-2%, -1%, 0); }
+            to { transform: translate3d(2%, 1%, 0); }
         }
 
+        @media (max-width: 640px) {
+            .content {
+                padding: 1.4rem 1rem;
+            }
+
+            #terminal-output {
+                min-height: 13em;
+            }
+        }
     </style>
 </head>
 
@@ -131,17 +195,14 @@
 <canvas id="matrix"></canvas>
 
 
-<div class="content">
-
+<div class="content" id="hero">
     <h1>voidzcode</h1>
-
+    <div class="subtitle">my online portfolio</div>
+    <div class="subtitle">made with love by voidz! <3</div>
     <div id="terminal-output"></div>
-
-
-    <a id="snake-button" class="game-button" href="games/snake/">
-        🐍 PLAY SNAKE
+    <a id="snake-button" class="game-button" href="https://voidzcode.github.io/games/snake" target="_blank" rel="noopener noreferrer">
+        PLAY SNAKE
     </a>
-
 </div>
 
 
@@ -154,15 +215,11 @@
 const terminalOutput = document.getElementById("terminal-output");
 
 const terminalLines = [
-    "sudo grant access to the voidzcode repository.",
-    "ACCESS GRANTED.",
-    "running voidzcode.",
-    "initialization complete.",
-    "detecting user.",
-    "detected user: anonymous.",
-    "running voidzcode access protocol.",
+    "granting access to the voidzcode repository...",
+    "establishing secure connection...",
+    "importing assets to page...",
+    "initializing voidzcode engine...",
     "all tasks completed successfully!",
-    "terminating terminal session.",
     "welcome to the void."
 ];
 
@@ -199,16 +256,21 @@ function renderCurrentLine() {
 
 
 function finalizeLine() {
-
     if (!currentLineEl) return;
 
+    const line = currentLineEl;
+    line.innerHTML = escapeHtml(activeLine);
+    line.classList.add("completed-line");
 
-    currentLineEl.innerHTML =
-        escapeHtml(activeLine);
+    setTimeout(() => {
+        line.classList.add("scroll-up");
+    }, 900);
 
-
-    currentLineEl.classList.add("completed-line");
-
+    setTimeout(() => {
+        if (line && line.parentNode) {
+            line.remove();
+        }
+    }, 1250);
 
     currentLineEl = null;
 }
@@ -218,82 +280,47 @@ function finalizeLine() {
 function showGames() {
 
     setTimeout(() => {
-
-        document
-        .getElementById("snake-button")
-        .classList.add("show");
-
-    }, 1000);
+        document.getElementById("snake-button").classList.add("show");
+    }, 1100);
 
 }
 
 
 
 function typeTerminal() {
-
-
     const currentLine = terminalLines[lineIndex];
 
-
     if (charIndex < currentLine.length) {
-
-
         activeLine += currentLine[charIndex];
-
         charIndex++;
-
         renderCurrentLine();
-
-
         setTimeout(typeTerminal, 45);
-
         return;
-
     }
-
-
 
     finalizeLine();
 
-
-
     if (lineIndex === terminalLines.length - 1) {
-
         showGames();
-
     }
-
-
 
     activeLine = "";
-
     charIndex = 0;
-
     lineIndex++;
 
-
-
     if (lineIndex < terminalLines.length) {
-
-
         setTimeout(() => {
-
             renderCurrentLine();
-
             setTimeout(typeTerminal, 500);
-
-        }, 250);
-
+        }, 700);
     }
-
 }
 
 
 
 window.onload = () => {
-
+    document.getElementById("hero").classList.add("ready");
     setTimeout(typeTerminal, 700);
-
 };
 
 
@@ -304,132 +331,68 @@ window.onload = () => {
 
 
 const canvas = document.getElementById("matrix");
-
 const ctx = canvas.getContext("2d");
 
+let viewWidth = window.innerWidth;
+let viewHeight = window.innerHeight;
 
 function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    viewWidth = window.innerWidth;
+    viewHeight = window.innerHeight;
 
-    canvas.width = window.innerWidth;
-
-    canvas.height = window.innerHeight;
-
+    canvas.width = Math.floor(viewWidth * dpr);
+    canvas.height = Math.floor(viewHeight * dpr);
+    canvas.style.width = viewWidth + "px";
+    canvas.style.height = viewHeight + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
-
 
 resize();
 
-
-const characters =
-"VOIDZCODE01<>[]{}$#@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-
+const characters = "VOIDZCODE01<>[]{}$#@ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const fontSize = 18;
-
-
 let columns;
-
 let drops = [];
 
-
-
 function setupMatrix() {
-
-    columns = Math.floor(canvas.width / fontSize);
-
+    columns = Math.max(1, Math.floor(viewWidth / fontSize));
     drops = [];
 
-
     for (let i = 0; i < columns; i++) {
-
-        drops[i] =
-        Math.random() * canvas.height / fontSize;
-
+        drops[i] = Math.random() * (viewHeight / fontSize);
     }
-
 }
-
-
 
 setupMatrix();
 
-
-
 function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+    ctx.fillRect(0, 0, viewWidth, viewHeight);
 
-
-    ctx.fillStyle =
-    "rgba(0,0,0,0.08)";
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-
-
-		ctx.font = fontSize + "px monospace";
-
-		ctx.fillStyle = "#00ff66";
-		ctx.textBaseline = 'top';
-
-
+    ctx.font = fontSize + "px monospace";
+    ctx.fillStyle = "#00ff66";
+    ctx.textBaseline = "top";
 
     for (let i = 0; i < drops.length; i++) {
+        const char = characters[Math.floor(Math.random() * characters.length)];
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
 
-
-        const char =
-        characters[
-            Math.floor(
-                Math.random() * characters.length
-            )
-        ];
-
-
-
-        ctx.fillText(
-            char,
-            i * fontSize,
-            drops[i] * fontSize
-        );
-
-
-
-        if (
-            drops[i] * fontSize > canvas.height
-            &&
-            Math.random() > 0.975
-        ) {
-
+        if (drops[i] * fontSize > viewHeight && Math.random() > 0.975) {
             drops[i] = 0;
-
         }
 
-
         drops[i]++;
-
     }
 
-
-
     requestAnimationFrame(drawMatrix);
-
 }
-
-
 
 drawMatrix();
 
-
-
 window.addEventListener("resize", () => {
-
     resize();
-
     setupMatrix();
-
 });
 
 
