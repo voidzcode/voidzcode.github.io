@@ -100,6 +100,18 @@
             transform: translateY(-2px) scale(1.01);
             box-shadow: 0 0 26px rgba(0, 255, 102, 0.38);
         }
+
+        .button.secondary {
+            margin-top: 0.75rem;
+            color: var(--text);
+            background: rgba(0, 255, 102, 0.08);
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.12);
+        }
+
+        .button.secondary:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 0 18px rgba(0, 255, 102, 0.22);
+        }
     </style>
 </head>
 <body>
@@ -107,6 +119,7 @@
         <h1>tools</h1>
         <p class="subtitle">a clean collection of my favorite and useful tools</p>
         <a class="button" target="_blank" rel="noopener noreferrer">unfinished, check back soon!</a>
+        <button class="button secondary" type="button" onclick="history.back()">Go back</button>
     </main>
 </body>
 </html>
