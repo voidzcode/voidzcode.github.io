@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>about me</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --accent: #00ff66;
+            --text: #eafff1;
+            --muted: rgba(234, 255, 241, 0.78);
+            --panel: rgba(0, 0, 0, 0.76);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            color: var(--text);
+            background: #000;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at top left, rgba(0, 255, 102, 0.18), transparent 32%),
+                linear-gradient(135deg, rgba(0, 255, 102, 0.08), transparent 60%);
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 34px 34px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.95));
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .page {
+            width: min(1100px, 96vw);
+            margin: 0 auto;
+            padding: clamp(1.2rem, 3vw, 2rem);
+            border: 1px solid rgba(0, 255, 102, 0.25);
+            border-radius: 28px;
+            background: var(--panel);
+            box-shadow: 0 0 32px rgba(0, 255, 102, 0.14);
+            backdrop-filter: blur(12px);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            transition: transform 180ms ease, background 180ms ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(0, 255, 102, 0.1);
+        }
+
+        .hero {
+            display: grid;
+            gap: 1.4rem;
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: center;
+            padding-bottom: 1.4rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .profile-card {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 255, 102, 0.45);
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.22);
+            background: #07111c;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            color: var(--accent);
+            letter-spacing: 0.16em;
+            text-transform: lowercase;
+            text-shadow: 0 0 16px rgba(0, 255, 102, 0.3);
+        }
+
+        .role {
+            margin-top: 0.45rem;
+            color: var(--muted);
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .intro {
+            max-width: 560px;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(234, 255, 241, 0.9);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.2rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+
+        .btn-primary {
+            color: #000;
+            background: linear-gradient(135deg, #00ff66, #00cc52);
+            box-shadow: 0 0 18px rgba(0, 255, 102, 0.24);
+        }
+
+        .btn-secondary {
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1.4rem;
+        }
+
+        .card {
+            padding: 1.1rem 1.15rem;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .card h2 {
+            margin-bottom: 0.55rem;
+            font-size: 1rem;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .card p, .card li {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 0.96rem;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.75rem;
+        }
+
+        .chips span {
+            padding: 0.5rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(0, 255, 102, 0.1);
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            color: #bfffd0;
+            font-size: 0.9rem;
+        }
+
+        .note {
+            margin-top: 1rem;
+            padding: 0.9rem 1rem;
+            border-radius: 14px;
+            border: 1px dashed rgba(0, 255, 102, 0.28);
+            color: #dfffe8;
+            background: rgba(0, 255, 102, 0.07);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 800px) {
+            .hero { grid-template-columns: 1fr; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a class="back-btn" href="https://voidzcode.github.io">← back home</a>
+        <section class="hero">
+            <div class="profile-card">
+                <div class="avatar">
+                    <img src="../assets/voidzcode.svg" alt="Profile picture" />
+                </div>
+                <div>
+                    <h1>voidzcode</h1>
+                    <p class="role">designer / developer / coder</p>
+                    <div class="actions">
+                    </div>
+                </div>
+            </div>
+
+            <div class="intro">
+                <p>here's a brief introduction about myself! :)</p>
+            </div>
+        </section>
+
+        <div class="grid">
+            <section class="card">
+                <h2>about</h2>
+                <p>I am a 13 year old coder and designer who loves creating websites and games. You'll most likely see most of my work is related to games, mods and homebrewing projects. I mostly main GitHub as my primary platform for sharing my work, but you might find me on other platforms too! I'm always online so feel free to reach out!</p>
+            </section>
+
+            <section class="card">
+                <h2>skills</h2>
+                <div class="chips">
+                    <span>HTML</span>
+                    <span>CSS</span>
+                    <span>JavaScript</span>
+                    <span>UI Design</span>
+                    <span>Web Development</span>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>highlights</h2>
+                <ul>
+                     <li> I am the creator of many open-source projects.</li>
+                     <li> I am one of the youngest developers in the community.</li>
+                     <li> Most of my code is extremely advanced to most people my age!</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>contact</h2>
+                <p>Email: onemoretapgames@gmail.com<br />Location: Wales / United Kingdom<br />Links: GitHub - @voidzcode / Discord - @voidz404</p>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

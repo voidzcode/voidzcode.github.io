@@ -118,13 +118,28 @@
             animation: blink 0.8s steps(1) infinite;
         }
 
-        .game-button {
+        .hero-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.2rem;
+            min-height: 5.2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .nav-button {
             display: inline-flex;
             align-items: center;
-            gap: 0.7rem;
-            margin-top: 30px;
-            padding: 14px 28px;
-            font-size: 1.05rem;
+            justify-content: center;
+            padding: 12px 20px;
+            font-size: 0.95rem;
             font-family: inherit;
             font-weight: 600;
             letter-spacing: 0.12em;
@@ -142,18 +157,61 @@
             backdrop-filter: blur(8px);
         }
 
-        .game-button.show {
+        .nav-button.show {
             opacity: 1;
             pointer-events: auto;
             transform: translateY(0);
             animation: pulseGlow 2.2s ease-in-out infinite alternate;
         }
 
-        .game-button:hover {
+        .hero-actions .nav-button,
+        .hero-actions .skip-button {
+            transform: translateY(16px);
+        }
+
+        .hero-actions .nav-button.show,
+        .hero-actions .skip-button.show {
+            transform: translateY(0);
+        }
+
+        .nav-button:hover {
             background: #00ff66;
             color: black;
             box-shadow: 0 0 26px rgba(0,255,102,0.45);
             transform: translateY(-2px) scale(1.02);
+        }
+
+        .skip-button {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: rgba(234, 255, 241, 0.85);
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 250ms ease, transform 250ms ease;
+        }
+
+        .skip-button.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .skip-button.hide {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+        }
+
+        .skip-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0, 255, 102, 0.45);
+            color: #00ff66;
         }
 
         @keyframes blink {
@@ -199,10 +257,15 @@
     <h1>voidzcode</h1>
     <div class="subtitle">my online portfolio</div>
     <div class="subtitle">made with love by voidz! <3</div>
+    <div class="hero-actions">
+        <button id="skip-button" class="skip-button" type="button">skip intro</button>
+        <div id="nav-buttons" class="nav-buttons">
+            <a id="games-button" class="nav-button" href="https://voidzcode.github.io/games" target="_self">games</a>
+            <a id="tools-button" class="nav-button" href="https://voidzcode.github.io/tools" target="_self">tools</a>
+            <a id="about-button" class="nav-button" href="https://voidzcode.github.io/about%20me" target="_self">about me</a>
+        </div>
+    </div>
     <div id="terminal-output"></div>
-    <a id="snake-button" class="game-button" href="https://voidzcode.github.io/games/snake" target="_blank" rel="noopener noreferrer">
-        PLAY SNAKE
-    </a>
 </div>
 
 
@@ -228,6 +291,7 @@ let activeLine = "";
 let lineIndex = 0;
 let charIndex = 0;
 let currentLineEl = null;
+let introActive = true;
 
 
 
@@ -277,31 +341,79 @@ function finalizeLine() {
 
 
 
-function showGames() {
+function showNavigation() {
+    if (!introActive) return;
+
+    const buttons = [
+        document.getElementById("games-button"),
+        document.getElementById("tools-button"),
+        document.getElementById("about-button")
+    ];
+
+    buttons.forEach((button, index) => {
+        setTimeout(() => {
+            if (!introActive) return;
+            button.classList.add("show");
+        }, 900 + index * 180);
+    });
 
     setTimeout(() => {
-        document.getElementById("snake-button").classList.add("show");
+        if (!introActive) return;
+        const skipButton = document.getElementById("skip-button");
+        skipButton.classList.add("show");
+        skipButton.classList.remove("hide");
     }, 1100);
-
 }
 
+function skipIntro() {
+    introActive = false;
+    const skipButton = document.getElementById("skip-button");
+    const buttons = [
+        document.getElementById("games-button"),
+        document.getElementById("tools-button"),
+        document.getElementById("about-button")
+    ];
 
+    buttons.forEach((button) => button.classList.add("show"));
+    skipButton.classList.add("hide");
+    skipButton.classList.remove("show");
+    terminalOutput.style.transition = "opacity 400ms ease, transform 400ms ease";
+    terminalOutput.style.opacity = "0";
+    terminalOutput.style.transform = "translateY(-10px)";
+    setTimeout(() => {
+        terminalOutput.innerHTML = "";
+        currentLineEl = null;
+        activeLine = "";
+        charIndex = 0;
+        lineIndex = terminalLines.length;
+    }, 220);
+}
 
 function typeTerminal() {
+    if (!introActive) return;
+
     const currentLine = terminalLines[lineIndex];
 
     if (charIndex < currentLine.length) {
         activeLine += currentLine[charIndex];
         charIndex++;
         renderCurrentLine();
-        setTimeout(typeTerminal, 45);
+        setTimeout(() => {
+            if (introActive) typeTerminal();
+        }, 45);
         return;
     }
 
     finalizeLine();
 
     if (lineIndex === terminalLines.length - 1) {
-        showGames();
+        const skipButton = document.getElementById("skip-button");
+        skipButton.classList.add("hide");
+        skipButton.classList.remove("show");
+        setTimeout(() => {
+            if (!introActive) return;
+            showNavigation();
+        }, 280);
     }
 
     activeLine = "";
@@ -310,8 +422,11 @@ function typeTerminal() {
 
     if (lineIndex < terminalLines.length) {
         setTimeout(() => {
+            if (!introActive) return;
             renderCurrentLine();
-            setTimeout(typeTerminal, 500);
+            setTimeout(() => {
+                if (introActive) typeTerminal();
+            }, 500);
         }, 700);
     }
 }
@@ -320,8 +435,11 @@ function typeTerminal() {
 
 window.onload = () => {
     document.getElementById("hero").classList.add("ready");
+    document.getElementById("skip-button").classList.add("show");
     setTimeout(typeTerminal, 700);
 };
+
+document.getElementById("skip-button").addEventListener("click", skipIntro);
 
 
 

@@ -78,6 +78,8 @@
 			updateScore();
 			clearInterval(tickInterval);
 			intervalMs = 120;
+			startBtn.disabled = false;
+			startBtn.textContent = 'Start';
 			draw();
 		}
 
@@ -92,7 +94,10 @@
 		function start(){
 			if(running) return;
 			running=true;
+			startBtn.disabled = true;
+			startBtn.textContent = 'Running';
 			if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+			clearInterval(tickInterval);
 			tickInterval = setInterval(tick, intervalMs);
 		}
 		function restart(){ reset(); start(); }
@@ -135,14 +140,11 @@
 		function updateScore(){ scoreEl.textContent = score }
 
 		function draw(){
-			// background
+			if(!canvas || !ctx || !snake || !apple || typeof cols !== 'number' || typeof rows !== 'number' || !gridSize) return;
 			ctx.clearRect(0,0,canvas.width,canvas.height);
-			// grid optional subtle
-			// draw apple (purple)
 			ctx.fillStyle = '#a78bfa';
 			ctx.fillRect(apple.x*gridSize+2, apple.y*gridSize+2, gridSize-4, gridSize-4);
 
-			// draw snake
 			for(let i=0;i<snake.length;i++){
 				const s = snake[i];
 				ctx.fillStyle = i? '#16a34a' : '#86efac';
