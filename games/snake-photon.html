@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photon Multiplayer Snake</title>
+    <title>Multiplayer Snake</title>
     <style>
         * {
             margin: 0;
@@ -351,11 +351,12 @@
         const APP_ID = '97c15b70-b8e2-4b44-8d80-4c78dbfae2ca';
 
         let canvas, ctx;
-        let gameState = { snakes: {}, food: null };
-        let myId = null;
+        let gameState = { snakes: {}, food: null, tick: 0 };
+        let myPlayerId = null;
         let myRoom = null;
-        let lastSendTime = 0;
-        const SEND_THROTTLE = 50;
+        let mySnake = null;
+        let lastDirectionSendTime = 0;
+        const DIRECTION_THROTTLE = 50;
 
         let photon = null;
         let isConnected = false;
@@ -364,6 +365,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
+            render();
             initPhoton();
             setupKeyboardControls();
             setupTouchControls();
@@ -380,9 +382,7 @@
                 photon.onConnect = onPhotonConnect;
                 photon.onDisconnect = onPhotonDisconnect;
                 photon.onError = onPhotonError;
-                photon.onStateChange = onPhotonStateChange;
                 photon.onEvent = onPhotonEvent;
-                photon.onOperationResponse = onPhotonOpResponse;
 
                 updateStatus('Connecting...', 'connecting');
                 photon.connect();
@@ -411,27 +411,17 @@
             showError('Network Error: ' + msg);
         }
 
-        function onPhotonStateChange(state) {
-            console.log('Photon State:', state);
-        }
-
-        function onPhotonOpResponse(response) {
-            // Handle operation responses
-        }
-
         function onPhotonEvent(event) {
             try {
                 const code = event.code;
                 const data = event.data;
 
-                if (code === 201) {
-                    if (data) {
-                        gameState = JSON.parse(data.state || '{"snakes":{},"food":null}');
-                        render();
+                if (code === 1) {
+                    if (data && data.state) {
+                        const remoteState = JSON.parse(data.state);
+                        syncRemoteState(remoteState);
                     }
-                } else if (code === 202) {
-                    updatePlayersList();
-                } else if (code === 203) {
+                } else if (code === 2) {
                     updatePlayersList();
                 }
             } catch (e) {
@@ -452,32 +442,16 @@
             roomOptions.isOpen = true;
             roomOptions.isVisible = true;
 
-            const roomProps = {
-                gameId: myRoom,
-                started: false
-            };
-            roomOptions.customRoomProperties = roomProps;
-            roomOptions.customRoomPropertiesForLobby = ['gameId'];
-
             photon.joinRoom(myRoom, { rejoin: false, createIfNotExists: true }, roomOptions);
 
-            myId = photon.myActor().actorNr;
-            document.getElementById('joinSection').style.display = 'none';
-            document.getElementById('gameInfo').style.display = 'block';
-            updateStatus('In Game', 'connected');
-            enableControls();
-
-            sendInitialState(name);
-        }
-
-        function sendInitialState(playerName) {
-            if (!isInRoom) return;
+            myPlayerId = photon.myActor().actorNr;
+            isInRoom = true;
 
             const colorMap = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'];
             const playerCount = Object.keys(gameState.snakes).length;
 
-            gameState.snakes[myId] = {
-                id: myId,
+            mySnake = {
+                playerId: myPlayerId,
                 body: [
                     {
                         x: Math.floor(Math.random() * (GRID_SIZE - 5)) + 2,
@@ -485,89 +459,98 @@
                     }
                 ],
                 direction: { x: 1, y: 0 },
+                nextDirection: { x: 1, y: 0 },
                 score: 0,
                 alive: true,
                 color: colorMap[playerCount % colorMap.length],
-                name: playerName
+                name: name
             };
 
-            const eventData = { state: JSON.stringify(gameState) };
-            photon.raiseEvent(201, eventData, { receivers: Photon.LoadBalancing.ReceiverGroup.All });
-
-            updatePlayersList();
-        }
-
-        function sendDirection(x, y) {
-            if (!isInRoom) return;
-
-            const now = Date.now();
-            if (now - lastSendTime < SEND_THROTTLE) return;
-            lastSendTime = now;
-
-            const snake = gameState.snakes[myId];
-            if (!snake || !snake.alive) return;
-
-            if (x !== -snake.direction.x || y !== -snake.direction.y) {
-                snake.direction = { x, y };
-
-                updateGameState();
-                const eventData = { state: JSON.stringify(gameState) };
-                photon.raiseEvent(201, eventData, { receivers: Photon.LoadBalancing.ReceiverGroup.All });
-            }
-        }
-
-        function updateGameState() {
-            for (let playerId in gameState.snakes) {
-                const snake = gameState.snakes[playerId];
-                if (!snake.alive) continue;
-
-                const head = snake.body[0];
-                const newHead = {
-                    x: (head.x + snake.direction.x + GRID_SIZE) % GRID_SIZE,
-                    y: (head.y + snake.direction.y + GRID_SIZE) % GRID_SIZE
-                };
-
-                for (let segment of snake.body) {
-                    if (newHead.x === segment.x && newHead.y === segment.y) {
-                        snake.alive = false;
-                        break;
-                    }
-                }
-
-                if (snake.alive) {
-                    snake.body.unshift(newHead);
-                }
-            }
+            gameState.snakes[myPlayerId] = mySnake;
 
             if (!gameState.food) {
                 gameState.food = spawnFood();
             }
 
-            for (let playerId in gameState.snakes) {
-                const snake = gameState.snakes[playerId];
-                const head = snake.body[0];
-                if (head.x === gameState.food.x && head.y === gameState.food.y) {
-                    snake.score += 10;
-                    gameState.food = spawnFood();
+            document.getElementById('joinSection').style.display = 'none';
+            document.getElementById('gameInfo').style.display = 'block';
+            updateStatus('In Game', 'connected');
+            enableControls();
+            broadcastState();
+            updatePlayersList();
+        }
+
+        function sendDirection(x, y) {
+            if (!isInRoom || !mySnake || !mySnake.alive) return;
+
+            const now = Date.now();
+            if (now - lastDirectionSendTime < DIRECTION_THROTTLE) return;
+            lastDirectionSendTime = now;
+
+            if (x !== -mySnake.direction.x || y !== -mySnake.direction.y) {
+                mySnake.nextDirection = { x, y };
+                broadcastState();
+            }
+        }
+
+        function broadcastState() {
+            if (!isInRoom) return;
+            const eventData = { state: JSON.stringify(gameState) };
+            photon.raiseEvent(1, eventData, { receivers: Photon.LoadBalancing.ReceiverGroup.All });
+        }
+
+        function syncRemoteState(remoteState) {
+            if (!remoteState || !remoteState.snakes) return;
+
+            Object.keys(remoteState.snakes).forEach(playerId => {
+                if (parseInt(playerId) !== myPlayerId) {
+                    gameState.snakes[playerId] = remoteState.snakes[playerId];
+                }
+            });
+
+            if (remoteState.food) {
+                gameState.food = remoteState.food;
+            }
+        }
+
+        function updateGameState() {
+            if (!isInRoom || !mySnake) return;
+
+            mySnake.direction = mySnake.nextDirection;
+            const head = mySnake.body[0];
+            const newHead = {
+                x: (head.x + mySnake.direction.x + GRID_SIZE) % GRID_SIZE,
+                y: (head.y + mySnake.direction.y + GRID_SIZE) % GRID_SIZE
+            };
+
+            for (let segment of mySnake.body) {
+                if (newHead.x === segment.x && newHead.y === segment.y) {
+                    mySnake.alive = false;
+                    return;
                 }
             }
 
-            for (let playerId1 in gameState.snakes) {
-                const snake1 = gameState.snakes[playerId1];
-                if (!snake1.alive) continue;
-                const head1 = snake1.body[0];
+            mySnake.body.unshift(newHead);
 
-                for (let playerId2 in gameState.snakes) {
-                    if (playerId1 === playerId2) continue;
-                    const snake2 = gameState.snakes[playerId2];
+            if (gameState.food && newHead.x === gameState.food.x && newHead.y === gameState.food.y) {
+                mySnake.score += 10;
+                gameState.food = spawnFood();
+            }
 
-                    for (let segment of snake2.body) {
-                        if (head1.x === segment.x && head1.y === segment.y) {
-                            snake1.alive = false;
-                        }
+            for (let playerId in gameState.snakes) {
+                if (parseInt(playerId) === myPlayerId) continue;
+                const otherSnake = gameState.snakes[playerId];
+                if (!otherSnake.alive) continue;
+
+                for (let segment of otherSnake.body) {
+                    if (newHead.x === segment.x && newHead.y === segment.y) {
+                        mySnake.alive = false;
+                        return;
                     }
                 }
             }
+
+            broadcastState();
         }
 
         function spawnFood() {
@@ -603,7 +586,7 @@
 
             for (let playerId in gameState.snakes) {
                 const snake = gameState.snakes[playerId];
-                const isYou = parseInt(playerId) === myId;
+                const isYou = parseInt(playerId) === myPlayerId;
 
                 const playerDiv = document.createElement('div');
                 playerDiv.className = 'player-item';
@@ -611,7 +594,7 @@
                 playerDiv.innerHTML = `
                     <div>
                         <span class="player-color" style="background: ${snake.color}"></span>
-                        ${snake.name || 'Player'} ${isYou ? '(You)' : ''}
+                        ${snake.name} ${isYou ? '(You)' : ''}
                     </div>
                     <span>${statusText}</span>
                 `;
@@ -621,7 +604,7 @@
                 scoreDiv.className = 'score-item';
                 scoreDiv.innerHTML = `
                     <span style="color: ${snake.color}; font-weight: 600;">●</span>
-                    <span>${snake.name || 'Player'} ${isYou ? '(You)' : ''}</span>
+                    <span>${snake.name} ${isYou ? '(You)' : ''}</span>
                     <span>${snake.score}</span>
                 `;
                 scoresList.appendChild(scoreDiv);
@@ -792,22 +775,11 @@
         }
 
         setInterval(() => {
-            if (isInRoom) {
+            if (isInRoom && mySnake && mySnake.alive) {
                 updateGameState();
-                render();
             }
-        }, TICK_RATE);
-
-        Photon.LoadBalancing.LoadBalancingClient.prototype.onActorPropertiesChanged = function() {
-            isInRoom = true;
-        };
-
-        photon = null;
-        document.addEventListener('DOMContentLoaded', () => {
-            canvas = document.getElementById('gameCanvas');
-            ctx = canvas.getContext('2d');
             render();
-        });
+        }, TICK_RATE);
     </script>
 </body>
 </html>
