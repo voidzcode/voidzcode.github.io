@@ -297,7 +297,7 @@
     <div class="container">
         <div class="header">
             <h1>Multiplayer Snake</h1>
-            <div class="connection-status" id="status">Initializing...</div>
+            <div class="connection-status" id="status">Loading Photon...</div>
             <div class="error-message" id="errorMsg"></div>
         </div>
 
@@ -340,9 +340,8 @@
         </div>
     </div>
 
-    <!-- Photon Library -->
-    <script src="https://cdn1.exitgames.com/en/resources/photonweb/lib/photon-core-sdk.js"></script>
-    <script src="https://cdn1.exitgames.com/en/resources/photonweb/lib/photonloadbalancing-sdk.js"></script>
+    <!-- Photon Library with better CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/photon-loadbalancing@1.0.0/dist/photonloadbalancing.js"></script>
 
     <script>
         const GRID_SIZE = 20;
@@ -366,13 +365,22 @@
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
             render();
-            initPhoton();
             setupKeyboardControls();
             setupTouchControls();
+            
+            // Wait for Photon to load
+            setTimeout(initPhoton, 1000);
         });
 
         function initPhoton() {
             try {
+                if (typeof Photon === 'undefined' || typeof Photon.LoadBalancing === 'undefined') {
+                    showError('Photon library failed to load. Please refresh the page.');
+                    updateStatus('Error', 'disconnected');
+                    console.error('Photon object:', typeof Photon, 'LoadBalancing:', typeof Photon?.LoadBalancing);
+                    return;
+                }
+
                 photon = new Photon.LoadBalancing.LoadBalancingClient(
                     Photon.ConnectionProtocol.Wss,
                     APP_ID,
@@ -387,8 +395,9 @@
                 updateStatus('Connecting...', 'connecting');
                 photon.connect();
             } catch (e) {
-                showError('Failed to initialize Photon: ' + e.message);
+                showError('Photon Error: ' + e.message);
                 updateStatus('Error', 'disconnected');
+                console.error('Full error:', e);
             }
         }
 
@@ -430,6 +439,11 @@
         }
 
         function joinGame() {
+            if (!isConnected) {
+                showError('Not connected to Photon yet');
+                return;
+            }
+
             const nameInput = document.getElementById('playerName');
             const roomSelect = document.getElementById('roomSelect');
             const name = nameInput.value.trim() || 'Player ' + Math.random().toString(36).substr(2, 5);
@@ -437,47 +451,53 @@
 
             document.getElementById('joinBtn').disabled = true;
 
-            const roomOptions = new Photon.LoadBalancing.RoomOptions();
-            roomOptions.maxPlayers = 4;
-            roomOptions.isOpen = true;
-            roomOptions.isVisible = true;
+            try {
+                const roomOptions = new Photon.LoadBalancing.RoomOptions();
+                roomOptions.maxPlayers = 4;
+                roomOptions.isOpen = true;
+                roomOptions.isVisible = true;
 
-            photon.joinRoom(myRoom, { rejoin: false, createIfNotExists: true }, roomOptions);
+                photon.joinRoom(myRoom, { rejoin: false, createIfNotExists: true }, roomOptions);
 
-            myPlayerId = photon.myActor().actorNr;
-            isInRoom = true;
+                myPlayerId = photon.myActor().actorNr;
+                isInRoom = true;
 
-            const colorMap = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'];
-            const playerCount = Object.keys(gameState.snakes).length;
+                const colorMap = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'];
+                const playerCount = Object.keys(gameState.snakes).length;
 
-            mySnake = {
-                playerId: myPlayerId,
-                body: [
-                    {
-                        x: Math.floor(Math.random() * (GRID_SIZE - 5)) + 2,
-                        y: Math.floor(Math.random() * (GRID_SIZE - 5)) + 2
-                    }
-                ],
-                direction: { x: 1, y: 0 },
-                nextDirection: { x: 1, y: 0 },
-                score: 0,
-                alive: true,
-                color: colorMap[playerCount % colorMap.length],
-                name: name
-            };
+                mySnake = {
+                    playerId: myPlayerId,
+                    body: [
+                        {
+                            x: Math.floor(Math.random() * (GRID_SIZE - 5)) + 2,
+                            y: Math.floor(Math.random() * (GRID_SIZE - 5)) + 2
+                        }
+                    ],
+                    direction: { x: 1, y: 0 },
+                    nextDirection: { x: 1, y: 0 },
+                    score: 0,
+                    alive: true,
+                    color: colorMap[playerCount % colorMap.length],
+                    name: name
+                };
 
-            gameState.snakes[myPlayerId] = mySnake;
+                gameState.snakes[myPlayerId] = mySnake;
 
-            if (!gameState.food) {
-                gameState.food = spawnFood();
+                if (!gameState.food) {
+                    gameState.food = spawnFood();
+                }
+
+                document.getElementById('joinSection').style.display = 'none';
+                document.getElementById('gameInfo').style.display = 'block';
+                updateStatus('In Game', 'connected');
+                enableControls();
+                broadcastState();
+                updatePlayersList();
+            } catch (e) {
+                showError('Failed to join: ' + e.message);
+                document.getElementById('joinBtn').disabled = false;
+                console.error('Join error:', e);
             }
-
-            document.getElementById('joinSection').style.display = 'none';
-            document.getElementById('gameInfo').style.display = 'block';
-            updateStatus('In Game', 'connected');
-            enableControls();
-            broadcastState();
-            updatePlayersList();
         }
 
         function sendDirection(x, y) {
@@ -494,9 +514,13 @@
         }
 
         function broadcastState() {
-            if (!isInRoom) return;
-            const eventData = { state: JSON.stringify(gameState) };
-            photon.raiseEvent(1, eventData, { receivers: Photon.LoadBalancing.ReceiverGroup.All });
+            if (!isInRoom || !photon) return;
+            try {
+                const eventData = { state: JSON.stringify(gameState) };
+                photon.raiseEvent(1, eventData, { receivers: Photon.LoadBalancing.ReceiverGroup.All });
+            } catch (e) {
+                console.error('Error broadcasting:', e);
+            }
         }
 
         function syncRemoteState(remoteState) {
@@ -755,9 +779,7 @@
             const errorEl = document.getElementById('errorMsg');
             errorEl.textContent = msg;
             errorEl.style.display = 'block';
-            setTimeout(() => {
-                errorEl.style.display = 'none';
-            }, 5000);
+            console.error(msg);
         }
 
         function enableControls() {
