@@ -263,12 +263,12 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
             font-weight: 700;
-        }
-
+        } 
         .tag-feature { background: rgba(0,255,102,0.1); color: #c8ffe0; }
         .tag-design { background: rgba(123, 92, 255, 0.12); color: #d9d0ff; }
         .tag-fix { background: rgba(255, 170, 0, 0.12); color: #ffd99d; }
         .tag-tool { background: rgba(0, 200, 255, 0.12); color: #bfefff; }
+        .tag-info { background: rgba(255, 90, 150, 0.12); color: #ffc4d9; }
 
         .entry-content h2 {
             font-size: clamp(1.2rem, 2vw, 1.6rem);
@@ -353,13 +353,16 @@
         const updates = [
             {
                 date: '26 Aug 2026',
-                category: ['info'],
+                category: ['info', 'fix'],
                 title: 'introducing localdrop.',
                 summary: 'LocalDrop is a new tool I have been working on that allows you to easily transfer files between devices on the same network. If you have a chance, check it out!',
                 items: [
                     'Released the first version.',
                     'Made some changes to the site to accommodate the new tool.',
-                    'Added a new repo on the repos page for LocalDrop.'
+                    'Added a new repo on the repos page for LocalDrop.',
+                    'Added new tag "info" to the update log for informational updates.',
+                    'Removed and added things from the to-do list as I completed them.',
+                    'Fixed the "index.html" issue on the website URLs and polished the website a bit more.'
                 ]
             },
             {
