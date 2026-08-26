@@ -313,8 +313,7 @@
                 <p class="eyebrow">website update log</p>
                 <h1>voidzcode updates</h1>
                 <p class="intro">
-                    This page is a simple place to log changes, updates, fixes, and improvements to your website.
-                    Edit the entries below and the page updates automatically.
+                    This page is a simple place where I log changes, updates, fixes, and improvements to my website!
                 </p>
 
                 <div class="actions">
@@ -341,39 +340,47 @@
 
         <div class="filters" aria-label="Update categories">
             <button class="filter active" type="button">all</button>
-            <button class="filter" type="button">feature</button>
             <button class="filter" type="button">design</button>
             <button class="filter" type="button">fix</button>
-            <button class="filter" type="button">tool</button>
+            <button class="filter" type="button">feature</button>
         </div>
 
         <main id="archive" class="updates" aria-live="polite"></main>
     </div>
 
     <script>
-        const updates = [   
+        const updates = [
             {
                 date: '26 Aug 2026',
-                category: 'fix',
-                title: 're-designed update log layout',
-                summary: 'Fixed the layout of the update log page to be more visually appealing and easier to read.',
+                category: ['feature'],
+                title: 'added a to-do page',
+                summary: 'Added a to-do page to remember tasks and show what I am currently working on.',
                 items: [
-                    'Added a new layout and GitHub api integration to show the total number of updates',
-                    'Improved readability.',
-                    'Made it easier to add future updates.',
-                    'Added a new filter system to sort updates by category.',
-                    'Added a new "last updated" section to show how many days ago the last update was made.'
+                    'Added a new to-do list page to the website.',
+                    'Improved the visual style to match the rest of the site.'
                 ]
-        },
-        {
+            },
+            {
                 date: '26 Aug 2026',
-                category: 'feature',
-                title: 'website update log added',
-                summary: 'A page to track to show updates that have been made.',
+                category: ['fix', 'design'],
+                title: 'website update log fix',
+                summary: 'Cleaned up the update log page and fixed several display issues.',
                 items: [
-                    'Added a clean update log layout',
-                    'Improved readability and page structure',
-                    'Set up an easier format for future updates'
+                    'Fixed layout and spacing issues on the update log page.',
+                    'Added GitHub API functionality to show the number of commits made to the website repository.',
+                    'Improved the readability and structure of the update log page.',
+                    'Fixed bugs where the update log page would not load properly on some devices.'
+                ]
+            },
+            {
+                date: '26 Aug 2026',
+                category: ['feature'],
+                title: 'website update log added',
+                summary: 'A page to track and show updates that have been made.',
+                items: [
+                    'Added a clean update log layout.',
+                    'Improved readability and page structure.',
+                    'Set up an easier format for future updates.'
                 ]
             }
         ];
@@ -414,14 +421,20 @@
 
             const filtered = filter === 'all'
                 ? updates
-                : updates.filter(item => item.category === filter);
+                : updates.filter(item => {
+                    const categories = Array.isArray(item.category) ? item.category : [item.category];
+                    return categories.includes(filter);
+                });
 
             filtered.forEach((item, index) => {
                 const article = document.createElement('article');
                 article.className = 'log-entry';
                 article.id = index === 0 ? 'latest' : '';
 
-                const tagClass = `tag-${item.category}`;
+                const categories = Array.isArray(item.category) ? item.category : [item.category];
+                const tagMarkup = categories
+                    .map(category => `<span class="tag tag-${category}">${category}</span>`)
+                    .join(' ');
                 const listItems = item.items.map(entry => `<li>${entry}</li>`).join('');
 
                 article.innerHTML = `
@@ -429,7 +442,7 @@
                         <span>${item.date}</span>
                     </div>
                     <div class="entry-content">
-                        <span class="tag ${tagClass}">${item.category}</span>
+                        ${tagMarkup}
                         <h2>${item.title}</h2>
                         <p>${item.summary}</p>
                         <ul>${listItems}</ul>
