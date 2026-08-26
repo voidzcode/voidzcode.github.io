@@ -238,6 +238,22 @@
         }
     </style>
 </head>
+<script>
+fetch("https://api.github.com/repos/voidzcode/voidzcode.github.io/commits?per_page=100")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("GitHub API error: " + response.status);
+        }
+        return response.json();
+    })
+    .then(commits => {
+        document.getElementById("update-count").textContent = commits.length;
+    })
+    .catch(error => {
+        document.getElementById("update-count").textContent = "ERROR";
+        console.error(error);
+    });
+</script>
 <body>
     <div class="page">
         <a class="back-btn" href="https://voidzcode.github.io">← back home</a>
@@ -259,7 +275,7 @@
             <div class="summary-grid">
                 <div class="summary-card">
                     <span class="summary-label">total updates</span>
-                    <strong id="update-count">...</strong>
+                   <strong id="update-count">loading...</strong>
                 </div>
                 <div class="summary-card">
                     <span class="summary-label">last build</span>
@@ -385,7 +401,7 @@
                 });
             });
         });
-   <script>
+<script>
     const filterButtons = document.querySelectorAll('.filter');
     const entries = document.querySelectorAll('.log-entry');
 
@@ -404,15 +420,25 @@
         });
     });
 
-    // Get number of GitHub updates
-    fetch("https://api.github.com/repos/voidzcode/voidzcode.github.io/commits?per_page=100")
-        .then(response => response.json())
-        .then(commits => {
-            document.getElementById("update-count").textContent = commits.length;
-        })
-        .catch(() => {
-            document.getElementById("update-count").textContent = "?";
-        });
-</script>
+    </script>
+
+    <script>
+        fetch("https://api.github.com/repos/voidzcode/voidzcode.github.io/commits?per_page=100")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("GitHub API error: " + response.status);
+                }
+                return response.json();
+            })
+            .then(commits => {
+                document.getElementById("update-count").textContent = commits.length;
+            })
+            .catch(error => {
+                document.getElementById("update-count").textContent = "ERROR";
+                console.error(error);
+            });
+    </script>
+</body>
+</html>
 </body>
 </html>
