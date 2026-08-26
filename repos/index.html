@@ -1,14 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>Page Broken / Under Development</title>
-<style>:root{color-scheme:dark;--accent:#00ff66;--text:#eafff1;--panel:rgba(0,0,0,0.76)}*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;padding:2rem;font-family:Segoe UI,Inter,system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:var(--text);background:#000}.page{width:min(900px,96vw);margin:0 auto;padding:1.2rem;border-radius:18px;background:var(--panel);border:1px solid rgba(0,255,102,0.12)}a.back{display:inline-block;margin-bottom:1rem;color:var(--text);text-decoration:none}</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>games</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --accent: #00ff66;
+            --text: #eafff1;
+            --muted: rgba(234, 255, 241, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 2rem 1rem;
+            font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            color: var(--text);
+            background: #000;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at top left, rgba(0, 255, 102, 0.18), transparent 32%),
+                linear-gradient(135deg, rgba(0, 255, 102, 0.08), transparent 60%);
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.95));
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .panel {
+            width: min(92vw, 640px);
+            padding: clamp(2rem, 4vw, 3rem);
+            text-align: center;
+            border: 1px solid rgba(0, 255, 102, 0.25);
+            border-radius: 24px;
+            background: rgba(0, 0, 0, 0.74);
+            box-shadow: 0 0 32px rgba(0, 255, 102, 0.14);
+            backdrop-filter: blur(12px);
+        }
+
+        h1 {
+            font-size: clamp(2.6rem, 6vw, 4rem);
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: lowercase;
+            color: var(--accent);
+            text-shadow: 0 0 16px rgba(0, 255, 102, 0.35);
+            margin-bottom: 0.8rem;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            opacity: 0.95;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1.6rem;
+            padding: 0.95rem 1.55rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            color: #000;
+            background: linear-gradient(135deg, #00ff66, #00cc52);
+            box-shadow: 0 0 18px rgba(0, 255, 102, 0.24);
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 0 26px rgba(0, 255, 102, 0.38);
+        }
+		
+		.button.secondary {
+            margin-top: 0.75rem;
+            color: var(--text);
+            background: rgba(0, 255, 102, 0.08);
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.12);
+        }
+		
+		.button.secondary:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 0 18px rgba(0, 255, 102, 0.22);
+        }
+    </style>
 </head>
 <body>
-<div class="page">
-<a class="back" href="../index.html">← back</a>
-<h1 style="color:var(--accent);margin-bottom:0.5rem;">repositories</h1>
-<p style="color:rgba(234,255,241,0.9);line-height:1.6">This page is currently broken/under development. Come back later!</p>
-</div>
+    <main class="panel">
+        <h1>repositories</h1>
+        <p class="subtitle">my collection of projects</p>
+        <a class="button primary" href="https://github.com/voidzcode/Youtube-Video-Downloader-UI-" target="_blank" rel="noopener noreferrer">YouTube Video Downloader UI</a>
+<a class="button primary" href="https://github.com/voidzcode/Gemini-Ai-Integration" target="_blank" rel="noopener noreferrer">Gemini Ai Integration</a>
+<a class="button primary" href="https://github.com/voidzcode/Roblox-Macros-Launcher" target="_blank" rel="noopener noreferrer">Roblox Macros Launcher</a>
+<a class="button primary" href="https://github.com/voidzcode/YouTube-Video-Downloader" target="_blank" rel="noopener noreferrer">YouTube Video Downloader</a>
+<a class="button primary" href="https://github.com/voidzcode/Copy-Paste-Bypass" target="_blank" rel="noopener noreferrer">Copy Paste Bypass</a>
+<a class="button primary"rel="noopener noreferrer">more soon!</a>
+        <button class="button secondary" type="button" onclick="history.back()">Go back</button>
+        </main>
 </body>
 </html>
