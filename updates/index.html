@@ -3,25 +3,36 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>about me</title>
+    <title>voidzcode updates</title>
     <style>
         :root {
             color-scheme: dark;
+            --bg: #000;
+            --panel: rgba(10, 16, 12, 0.82);
+            --panel-alt: rgba(255, 255, 255, 0.03);
             --accent: #00ff66;
-            --text: #eafff1;
-            --muted: rgba(234, 255, 241, 0.78);
-            --panel: rgba(0, 0, 0, 0.76);
+            --accent-soft: rgba(0, 255, 102, 0.14);
+            --text: #eafef0;
+            --muted: rgba(234, 254, 240, 0.75);
+            --border: rgba(255, 255, 255, 0.08);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             min-height: 100vh;
             padding: 2rem 1rem;
-            font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            font-family: "Segoe UI", Inter, system-ui, sans-serif;
+            background: var(--bg);
             color: var(--text);
-            background: #000;
-            overflow-x: hidden;
         }
 
         body::before {
@@ -29,8 +40,8 @@
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(circle at top left, rgba(0, 255, 102, 0.18), transparent 32%),
-                linear-gradient(135deg, rgba(0, 255, 102, 0.08), transparent 60%);
+                radial-gradient(circle at top left, rgba(0,255,102,0.18), transparent 30%),
+                linear-gradient(135deg, rgba(0,255,102,0.08), transparent 60%);
             z-index: -2;
         }
 
@@ -39,406 +50,424 @@
             position: fixed;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 34px 34px;
-            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.95));
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
             pointer-events: none;
             z-index: -1;
         }
 
         .page {
-            width: min(1100px, 96vw);
+            width: min(1000px, 94vw);
             margin: 0 auto;
-            padding: clamp(1.2rem, 3vw, 2rem);
-            border: 1px solid rgba(0, 255, 102, 0.25);
-            border-radius: 28px;
+            padding: clamp(1.2rem, 3vw, 2.2rem);
             background: var(--panel);
-            box-shadow: 0 0 32px rgba(0, 255, 102, 0.14);
-            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,255,102,0.24);
+            border-radius: 24px;
+            box-shadow: 0 0 26px rgba(0,255,102,0.12);
+            backdrop-filter: blur(10px);
         }
 
         .back-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            margin-bottom: 1rem;
-            padding: 0.5rem 0.8rem;
+            gap: 0.4rem;
+            padding: 0.65rem 0.95rem;
             border-radius: 999px;
             text-decoration: none;
+            color: var(--text);
+            border: 1px solid rgba(0,255,102,0.18);
+            background: rgba(255,255,255,0.03);
             font-size: 0.9rem;
             font-weight: 600;
             letter-spacing: 0.08em;
-            color: var(--text);
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(0, 255, 102, 0.2);
-            transition: transform 180ms ease, background 180ms ease;
+            transition: transform 150ms ease, background 150ms ease;
         }
 
         .back-btn:hover {
             transform: translateY(-1px);
-            background: rgba(0, 255, 102, 0.1);
+            background: rgba(0,255,102,0.08);
         }
 
         .hero {
             display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            align-items: center;
             gap: 1.4rem;
-            grid-template-columns: 1.1fr 0.9fr;
-            align-items: center;
-            padding-bottom: 1.4rem;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-top: 1rem;
+            padding-bottom: 1.3rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .profile-card {
-            display: flex;
-            gap: 1.2rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .avatar {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 255, 102, 0.45);
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.22);
-            background: #07111c;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        h1 {
-            font-size: clamp(2rem, 4vw, 2.8rem);
+        .eyebrow {
+            margin-bottom: 0.5rem;
             color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 700;
             letter-spacing: 0.16em;
-            text-transform: lowercase;
-            text-shadow: 0 0 16px rgba(0, 255, 102, 0.3);
-        }
-
-        .role {
-            margin-top: 0.45rem;
-            color: var(--muted);
-            font-size: 1rem;
-            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
+        h1 {
+            font-size: clamp(2.2rem, 5vw, 3.3rem);
+            line-height: 1.1;
+            color: var(--accent);
+            letter-spacing: 0.12em;
+            text-transform: lowercase;
+            text-shadow: 0 0 16px rgba(0,255,102,0.28);
+        }
+
         .intro {
-            max-width: 560px;
-            font-size: 1rem;
+            max-width: 620px;
+            margin-top: 0.8rem;
+            color: var(--muted);
             line-height: 1.7;
-            color: rgba(234, 255, 241, 0.9);
+            font-size: 1rem;
         }
 
         .actions {
             display: flex;
-            gap: 0.8rem;
             flex-wrap: wrap;
-            margin-top: 1rem;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.8rem 1.2rem;
+            padding: 0.8rem 1.15rem;
             border-radius: 999px;
             text-decoration: none;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            transition: transform 180ms ease, box-shadow 180ms ease;
-        }
-
-        .btn-primary {
-            color: #000;
-            background: linear-gradient(135deg, #00ff66, #00cc52);
-            box-shadow: 0 0 18px rgba(0, 255, 102, 0.24);
-        }
-
-        .btn-secondary {
-            color: var(--text);
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.12);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            transition: transform 150ms ease, box-shadow 150ms ease;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
-        .grid {
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #00c94f);
+            color: #02120a;
+            box-shadow: 0 0 18px rgba(0,255,102,0.2);
+        }
+
+        .btn-secondary {
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .summary-grid {
             display: grid;
-            gap: 1rem;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            margin-top: 1.4rem;
+            gap: 0.8rem;
         }
 
-        .card {
-            padding: 1.1rem 1.15rem;
+        .summary-card {
+            padding: 1rem 1.1rem;
             border-radius: 18px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--panel-alt);
+            border: 1px solid var(--border);
         }
 
-        .card h2 {
-            margin-bottom: 0.55rem;
-            font-size: 1rem;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .card p, .card li {
+        .summary-label {
+            display: block;
             color: var(--muted);
-            line-height: 1.7;
-            font-size: 0.96rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
         }
 
-        .chips {
+        .summary-card strong {
+            font-size: 1.05rem;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .filters {
             display: flex;
             flex-wrap: wrap;
             gap: 0.6rem;
-            margin-top: 0.75rem;
+            margin: 1.4rem 0 1rem;
         }
 
-        .chips span, .chips a {
-            padding: 0.5rem 0.75rem;
+        .filter {
+            padding: 0.55rem 0.85rem;
             border-radius: 999px;
-            background: rgba(0, 255, 102, 0.1);
-            border: 1px solid rgba(0, 255, 102, 0.2);
-            color: #bfffd0;
-            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            color: var(--muted);
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: lowercase;
+            transition: all 150ms ease;
+        }
+
+        .filter.active,
+        .filter:hover {
+            background: var(--accent-soft);
+            border-color: rgba(0,255,102,0.28);
+            color: var(--text);
+        }
+
+        .updates {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .log-entry {
+            display: grid;
+            grid-template-columns: 170px 1fr;
+            gap: 1rem;
+            padding: 1.15rem;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+        }
+
+        .entry-date {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding-top: 0.2rem;
+        }
+
+        .entry-date span {
             display: inline-block;
-            text-decoration: none;
+            padding: 0.45rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(0,255,102,0.08);
+            border: 1px solid rgba(0,255,102,0.18);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
-        .chips a:hover {
-            transform: translateY(-2px);
-            background: rgba(0, 255, 102, 0.16);
+        .entry-content {
+            min-width: 0;
         }
 
-        .note {
-            margin-top: 1rem;
-            padding: 0.9rem 1rem;
-            border-radius: 14px;
-            border: 1px dashed rgba(0, 255, 102, 0.28);
-            color: #dfffe8;
-            background: rgba(0, 255, 102, 0.07);
-            font-size: 0.95rem;
+        .tag {
+            display: inline-block;
+            margin-bottom: 0.55rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
-        @media (max-width: 800px) {
-            .hero { grid-template-columns: 1fr; }
-            .grid { grid-template-columns: 1fr; }
+        .tag-feature { background: rgba(0,255,102,0.1); color: #c8ffe0; }
+        .tag-design { background: rgba(123, 92, 255, 0.12); color: #d9d0ff; }
+        .tag-fix { background: rgba(255, 170, 0, 0.12); color: #ffd99d; }
+        .tag-tool { background: rgba(0, 200, 255, 0.12); color: #bfefff; }
+
+        .entry-content h2 {
+            font-size: clamp(1.2rem, 2vw, 1.6rem);
+            margin-bottom: 0.55rem;
+            color: var(--text);
+        }
+
+        .entry-content p {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 0.98rem;
+        }
+
+        .entry-content ul {
+            margin-top: 0.8rem;
+            padding-left: 1.2rem;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 720px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .log-entry {
+                grid-template-columns: 1fr;
+            }
+
+            .entry-date {
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
-<script>
-fetch("https://api.github.com/repos/voidzcode/voidzcode.github.io/commits?per_page=100")
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("GitHub API error: " + response.status);
-        }
-        return response.json();
-    })
-    .then(commits => {
-        document.getElementById("update-count").textContent = commits.length;
-    })
-    .catch(error => {
-        document.getElementById("update-count").textContent = "ERROR";
-        console.error(error);
-    });
-</script>
 <body>
     <div class="page">
         <a class="back-btn" href="https://voidzcode.github.io">← back home</a>
 
         <header class="hero">
-            <div class="title-wrap">
+            <div>
                 <p class="eyebrow">website update log</p>
                 <h1>voidzcode updates</h1>
                 <p class="intro">
-                    A running log of new features, design changes, fixes, and experiments that shape the site.
+                    This page is a simple place to log changes, updates, fixes, and improvements to your website.
+                    Edit the entries below and the page updates automatically.
                 </p>
 
                 <div class="actions">
-                    <a class="btn btn-primary" href="#latest">latest patch</a>
-                    <a class="btn btn-secondary" href="#archive">view archive</a>
+                    <a class="btn btn-primary" href="#latest">latest update</a>
+                    <a class="btn btn-secondary" href="#archive">browse log</a>
                 </div>
             </div>
 
             <div class="summary-grid">
                 <div class="summary-card">
-                    <span class="summary-label">total updates</span>
-                   <strong id="update-count">loading...</strong>
+                    <span class="summary-label">total entries</span>
+                    <strong id="update-count">loading...</strong>
                 </div>
                 <div class="summary-card">
-                    <span class="summary-label">last build</span>
-                    <strong>26 Aug</strong>
+                    <span class="summary-label">last updated</span>
+                    <strong id="days-ago">calculating...</strong>
                 </div>
                 <div class="summary-card">
                     <span class="summary-label">current focus</span>
-                    <strong>more pages, website polish, mobile support.</strong>
+                    <strong>new features, mobile support and website polish.</strong>
                 </div>
             </div>
         </header>
 
         <div class="filters" aria-label="Update categories">
             <button class="filter active" type="button">all</button>
-            <button class="filter" type="button">features</button>
+            <button class="filter" type="button">feature</button>
             <button class="filter" type="button">design</button>
-            <button class="filter" type="button">fixes</button>
-            <button class="filter" type="button">tools</button>
+            <button class="filter" type="button">fix</button>
+            <button class="filter" type="button">tool</button>
         </div>
 
-        <main class="updates" id="archive">
-            <article class="log-entry featured" data-category="features">
-                <div class="entry-date">
-                    <span>26 Aug 2026</span>
-                </div>
-
-                <div class="entry-content">
-                    <span class="tag tag-feature">feature</span>
-                    <h2 id="latest">website update log added</h2>
-                    <p>
-                        I added a dedicated changelog page to keep track of the project’s major improvements,
-                        polishing updates, and new experiments in one place.
-                    </p>
-
-                    <ul>
-                        <li>Added a clean log layout for future updates</li>
-                        <li>Improved readability with clearer content hierarchy</li>
-                        <li>Set up a structure for ongoing site maintenance notes</li>
-                    </ul>
-                </div>
-            </article>
-
-            <article class="log-entry" data-category="design">
-                <div class="entry-date">
-                    <span>18 Aug 2026</span>
-                </div>
-
-                <div class="entry-content">
-                    <span class="tag tag-design">design</span>
-                    <h2>homepage visual refresh</h2>
-                    <p>
-                        The landing page received a stronger neon aesthetic with improved spacing, cleaner buttons,
-                        and a more polished matrix-inspired background treatment.
-                    </p>
-
-                    <ul>
-                        <li>Balanced typography and spacing for a cleaner hero section</li>
-                        <li>Refined the navigation card transitions and hover states</li>
-                        <li>Redesigned the background to feel more atmospheric without overwhelming content</li>
-                    </ul>
-                </div>
-            </article>
-
-            <article class="log-entry" data-category="fixes">
-                <div class="entry-date">
-                    <span>07 Aug 2026</span>
-                </div>
-
-                <div class="entry-content">
-                    <span class="tag tag-fix">fix</span>
-                    <h2>mobile layout improvements</h2>
-                    <p>
-                        I tightened up the responsive layout across sections so that links, content blocks, and hero text
-                        feel much more consistent on smaller screens.
-                    </p>
-
-                    <ul>
-                        <li>Adjusted spacing for narrow viewports</li>
-                        <li>Improved button wrapping and card readability</li>
-                        <li>Fixed overlapping elements on mobile layouts</li>
-                    </ul>
-                </div>
-            </article>
-
-            <article class="log-entry" data-category="tools">
-                <div class="entry-date">
-                    <span>29 Jul 2026</span>
-                </div>
-
-                <div class="entry-content">
-                    <span class="tag tag-tool">tools</span>
-                    <h2>project tools section expanded</h2>
-                    <p>
-                        The tools and utilities part of the site was expanded with a more structured layout and clearer
-                        descriptions of the projects and automation workflows I build.
-                    </p>
-
-                    <ul>
-                        <li>Added more project categories and utility tiles</li>
-                        <li>Improved clarity for developer-focused resources</li>
-                        <li>Prepared the section for future additions and experiments</li>
-                    </ul>
-                </div>
-            </article>
-        </main>
+        <main id="archive" class="updates" aria-live="polite"></main>
     </div>
 
     <script>
+        const updates = [   
+            {
+                date: '26 Aug 2026',
+                category: 'fix',
+                title: 're-designed update log layout',
+                summary: 'Fixed the layout of the update log page to be more visually appealing and easier to read.',
+                items: [
+                    'Added a new layout and GitHub api integration to show the total number of updates',
+                    'Improved readability.',
+                    'Made it easier to add future updates.'
+                    'Added a new filter system to sort updates by category.'
+                    'Added a new "last updated" section to show how many days ago the last update was made.'
+                ]
+        },
+        {
+                date: '26 Aug 2026',
+                category: 'feature',
+                title: 'website update log added',
+                summary: 'A page to track to show updates that have been made.',
+                items: [
+                    'Added a clean update log layout',
+                    'Improved readability and page structure',
+                    'Set up an easier format for future updates'
+                ]
+            }
+        ];
+
+        const listEl = document.getElementById('archive');
+
+        function parseUpdateDate(dateText) {
+            const [day, month, year] = dateText.split(' ');
+            const monthIndex = {
+                Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+                Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
+            }[month];
+
+            return new Date(year, monthIndex, Number(day));
+        }
+
+        function getDaysAgo(dateText) {
+            const latestDate = parseUpdateDate(dateText);
+            const today = new Date();
+            const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const diffMs = startOfToday - latestDate;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function renderDaysAgo() {
+            const latest = updates[0];
+            const days = getDaysAgo(latest.date);
+            const target = document.getElementById('days-ago');
+
+            if (target) {
+                target.textContent = `${days} day${days === 1 ? '' : 's'} ago`;
+            }
+        }
+
+        function renderUpdates(filter = 'all') {
+            listEl.innerHTML = '';
+
+            const filtered = filter === 'all'
+                ? updates
+                : updates.filter(item => item.category === filter);
+
+            filtered.forEach((item, index) => {
+                const article = document.createElement('article');
+                article.className = 'log-entry';
+                article.id = index === 0 ? 'latest' : '';
+
+                const tagClass = `tag-${item.category}`;
+                const listItems = item.items.map(entry => `<li>${entry}</li>`).join('');
+
+                article.innerHTML = `
+                    <div class="entry-date">
+                        <span>${item.date}</span>
+                    </div>
+                    <div class="entry-content">
+                        <span class="tag ${tagClass}">${item.category}</span>
+                        <h2>${item.title}</h2>
+                        <p>${item.summary}</p>
+                        <ul>${listItems}</ul>
+                    </div>
+                `;
+
+                listEl.appendChild(article);
+            });
+        }
+
         const filterButtons = document.querySelectorAll('.filter');
-        const entries = document.querySelectorAll('.log-entry');
-
-        filterButtons.forEach((button) => {
+        filterButtons.forEach(button => {
             button.addEventListener('click', () => {
-                filterButtons.forEach((btn) => btn.classList.remove('active'));
+                filterButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-
-                const selected = button.textContent.trim().toLowerCase();
-
-                entries.forEach((entry) => {
-                    const category = entry.dataset.category || 'all';
-                    const visible = selected === 'all' || category === selected;
-                    entry.style.display = visible ? 'grid' : 'none';
-                });
+                renderUpdates(button.textContent.trim().toLowerCase());
             });
         });
-<script>
-    const filterButtons = document.querySelectorAll('.filter');
-    const entries = document.querySelectorAll('.log-entry');
 
-    filterButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            filterButtons.forEach((btn) => btn.classList.remove('active'));
-            button.classList.add('active');
+        renderUpdates();
+        renderDaysAgo();
 
-            const selected = button.textContent.trim().toLowerCase();
-
-            entries.forEach((entry) => {
-                const category = entry.dataset.category || 'all';
-                const visible = selected === 'all' || category === selected;
-                entry.style.display = visible ? 'grid' : 'none';
-            });
-        });
-    });
-
-    </script>
-
-    <script>
-        fetch("https://api.github.com/repos/voidzcode/voidzcode.github.io/commits?per_page=100")
+        fetch('https://api.github.com/repos/voidzcode/voidzcode.github.io/commits?per_page=100')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error("GitHub API error: " + response.status);
+                    throw new Error('GitHub API error: ' + response.status);
                 }
                 return response.json();
             })
             .then(commits => {
-                document.getElementById("update-count").textContent = commits.length;
+                const countEl = document.getElementById('update-count');
+                if (countEl) countEl.textContent = commits.length;
             })
             .catch(error => {
-                document.getElementById("update-count").textContent = "ERROR";
+                const countEl = document.getElementById('update-count');
+                if (countEl) countEl.textContent = 'n/a';
                 console.error(error);
             });
     </script>
-</body>
-</html>
 </body>
 </html>
