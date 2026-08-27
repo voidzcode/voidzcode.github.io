@@ -13,7 +13,7 @@
 
     document.addEventListener("click", function () {
         const clickSound = new Audio(clickSoundUrl);
-        clickSound.volume = 0.7;
+        clickSound.volume = 1.0;
         clickSound.play().catch(function () {
         });
     }, true);
