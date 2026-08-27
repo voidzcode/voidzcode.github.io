@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f6f5">
+    <title>Internet speed test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #f4f6f5;
+            --panel: #ffffff;
+            --line: #dce4e1;
+            --text: #172522;
+            --muted: #667570;
+            --mint: #167a62;
+            --lime: #d5e95e;
+            --coral: #c85745;
+            --mono: 'DM Mono', Consolas, monospace;
+            --sans: 'Space Grotesk', 'Segoe UI', sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text);
+            font-family: var(--sans);
+            background: var(--bg);
+            overflow-x: hidden;
+        }
+        .shell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 28px 0 25px;
+            border-bottom: 1px solid var(--line);
+        }
+        .brand { display: flex; gap: 12px; align-items: center; }
+        .mark { width: 30px; height: 30px; display: grid; place-items: center; border: 2px solid var(--mint); color: var(--mint); }
+        .mark span { font-weight: 700; font-size: 13px; }
+        .brand-name { font-weight: 600; font-size: 15px; }
+        .brand-note { color: var(--muted); font: 11px var(--mono); }
+        .status { display: flex; align-items: center; gap: 8px; color: var(--muted); font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+        .status i { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); }
+
+        main { padding: 56px 0 70px; }
+        .intro { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 36px; }
+        h1 { max-width: 620px; margin: 0; font-size: clamp(34px, 5vw, 58px); line-height: 1; letter-spacing: -.045em; font-weight: 600; }
+        .intro p { width: 245px; margin: 0 0 5px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+        .test-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .8fr); gap: 18px; }
+        .panel { border: 1px solid var(--line); background: var(--panel); }
+        .meter-panel { min-height: 525px; padding: 28px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .meter-top { width: 100%; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+        .server-chip { color: var(--text); display: flex; align-items: center; gap: 8px; }
+        .server-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--lime); }
+        .meter-wrap { position: relative; width: min(100%, 450px); aspect-ratio: 1; margin: 10px 0 -8px; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .readout { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 25px; pointer-events: none; }
+        .readout-value { font-size: clamp(54px, 9vw, 82px); font-weight: 600; letter-spacing: -.08em; line-height: 1; }
+        .readout-unit { margin-top: 8px; color: var(--muted); font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+        .phase { min-height: 18px; color: var(--mint); font: 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+        .start-button { width: 100%; max-width: 360px; border: 0; padding: 17px 24px; color: #ffffff; background: var(--mint); font: 600 13px var(--sans); letter-spacing: .04em; cursor: pointer; transition: background .2s; }
+        .start-button:hover { background: #0e604e; }
+        .start-button:disabled { background: #aab8b3; color: #ffffff; cursor: wait; }
+        .side-stack { display: grid; grid-template-rows: auto 1fr; gap: 18px; }
+        .stats-panel { padding: 25px 27px; }
+        .panel-label { margin: 0 0 18px; color: var(--muted); font: 11px var(--mono); text-transform: uppercase; letter-spacing: .1em; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 14px; }
+        .stat { border-top: 1px solid var(--line); padding-top: 12px; }
+        .stat-name { color: var(--muted); font-size: 12px; }
+        .stat-value { margin-top: 7px; font: 500 24px var(--mono); }
+        .stat-value small { color: var(--muted); font-size: 11px; }
+        .history-panel, .info-panel { padding: 25px 27px; min-height: 230px; }
+        .history-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); font: 11px var(--mono); }
+        .history-row span { color: var(--muted); }
+        .history-row strong { font-weight: 400; }
+        .empty { color: var(--muted); font: 12px var(--mono); line-height: 1.6; }
+        .info-panel { min-height: 0; }
+        .info-button { border: 1px solid var(--mint); padding: 11px 14px; color: var(--mint); background: transparent; font: 600 12px var(--sans); cursor: pointer; }
+        .info-button:hover { color: #ffffff; background: var(--mint); }
+        .info-note { margin: -7px 0 16px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+        .info-list { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 18px; margin-top: 18px; }
+        .info-item { min-width: 0; border-top: 1px solid var(--line); padding-top: 9px; }
+        .info-item span { display: block; color: var(--muted); font-size: 11px; }
+        .info-item strong { display: block; overflow: hidden; margin-top: 4px; font: 12px var(--mono); text-overflow: ellipsis; white-space: nowrap; }
+        .info-error { margin: 16px 0 0; color: var(--coral); font: 12px var(--mono); }
+        footer { display: flex; justify-content: space-between; gap: 20px; padding-top: 24px; color: var(--muted); font: 11px var(--mono); letter-spacing: .04em; }
+        footer button { padding: 0; border: 0; color: var(--muted); background: none; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+        :focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+        @media (max-width: 760px) {
+            .shell { width: min(100% - 28px, 560px); }
+            header { padding: 20px 0; }
+            .brand-note { display: none; }
+            main { padding: 36px 0 45px; }
+            .intro { display: block; margin-bottom: 25px; }
+            h1 { font-size: clamp(46px, 14vw, 70px); }
+            .intro p { width: auto; margin-top: 18px; }
+            .test-layout { display: block; }
+            .meter-panel { min-height: 450px; padding: 20px 16px 22px; }
+            .side-stack { margin-top: 14px; }
+            footer { display: block; line-height: 2; }
+            footer span { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header>
+            <div class="brand"><div class="mark"><span>↯</span></div><span class="brand-name">Signal</span><span class="brand-note">/ connection diagnostics</span></div>
+            <div class="status"><i></i><span id="connection-status">ready</span></div>
+        </header>
+        <main>
+            <section class="intro"><h1>Internet speed test</h1><p>Measure the connection between this device and the nearest test node.</p></section>
+            <section class="test-layout">
+                <div class="panel meter-panel">
+                    <div class="meter-top"><span id="test-type">download</span><span class="server-chip" id="server-name">Cloudflare · global</span></div>
+                    <div class="meter-wrap"><canvas id="meter" aria-label="Current internet speed gauge"></canvas><div class="readout"><div class="readout-value" id="speed-value">0.0</div><div class="readout-unit">Mbps</div></div></div>
+                    <div class="phase" id="phase">ready when you are</div>
+                    <button class="start-button" id="start-button" type="button">Start test</button>
+                </div>
+                <div class="side-stack">
+                    <div class="panel stats-panel"><p class="panel-label">Live metrics</p><div class="stats"><div class="stat"><div class="stat-name">Download</div><div class="stat-value" id="download-value">-- <small>Mbps</small></div></div><div class="stat"><div class="stat-name">Upload</div><div class="stat-value" id="upload-value">-- <small>Mbps</small></div></div><div class="stat"><div class="stat-name">Latency</div><div class="stat-value" id="latency-value">-- <small>ms</small></div></div><div class="stat"><div class="stat-name">Jitter</div><div class="stat-value" id="jitter-value">-- <small>ms</small></div></div></div></div>
+                    <div class="panel info-panel"><p class="panel-label">Network details</p><p class="info-note">Nothing is shown until you ask for it. The lookup uses a third-party IP service.</p><button class="info-button" id="personal-info-button" type="button">Show personal info</button><div id="personal-info" aria-live="polite"></div></div>
+                    <div class="panel history-panel"><p class="panel-label">Recent tests</p><div id="history"><div class="empty">Your completed tests will appear here.</div></div></div>
+                </div>
+            </section>
+            <footer><span>Speed results stay in this browser. Network details are opt-in.</span><button id="clear-history" type="button">Clear history</button></footer>
+        </main>
+    </div>
+    <script>
+        const canvas = document.getElementById('meter');
+        const context = canvas.getContext('2d');
+        const button = document.getElementById('start-button');
+        const phase = document.getElementById('phase');
+        const speedValue = document.getElementById('speed-value');
+        const testType = document.getElementById('test-type');
+        const status = document.getElementById('connection-status');
+        const maxGauge = 500;
+        let currentSpeed = 0;
+
+        function drawMeter() {
+            const size = canvas.clientWidth * devicePixelRatio;
+            if (canvas.width !== size) { canvas.width = size; canvas.height = size; }
+            const center = size / 2, radius = size * .39, start = Math.PI * .72, end = Math.PI * 2.28;
+            context.clearRect(0, 0, size, size);
+            context.lineWidth = size * .025; context.lineCap = 'round';
+            context.beginPath(); context.arc(center, center, radius, start, end); context.strokeStyle = 'rgba(202,232,224,.12)'; context.stroke();
+            const progress = Math.min(currentSpeed / maxGauge, 1);
+            if (progress > 0) { context.beginPath(); context.arc(center, center, radius, start, start + (end - start) * progress); context.strokeStyle = '#7ce3ba'; context.shadowColor = '#7ce3ba'; context.shadowBlur = size * .04; context.stroke(); context.shadowBlur = 0; }
+            context.fillStyle = 'rgba(139,166,159,.75)'; context.font = `${size * .027}px DM Mono, monospace`; context.textAlign = 'center';
+            [0, 100, 200, 300, 400, 500].forEach((value, index) => { const angle = start + (end - start) * index / 5; context.fillText(value, center + Math.cos(angle) * (radius + size * .09), center + Math.sin(angle) * (radius + size * .09) + size * .01); });
+        }
+        function setSpeed(value) { currentSpeed = value; speedValue.textContent = value.toFixed(1); drawMeter(); }
+        async function measureLatency() {
+            const samples = [];
+            for (let index = 0; index < 8; index++) { const started = performance.now(); try { await fetch(`https://speed.cloudflare.com/__down?bytes=1&cacheBust=${Date.now()}-${index}`, { cache: 'no-store', mode: 'cors' }); samples.push(performance.now() - started); } catch (error) { samples.push(performance.now() - started); } }
+            const average = samples.reduce((sum, value) => sum + value, 0) / samples.length;
+            const jitter = Math.max(...samples) - Math.min(...samples);
+            document.getElementById('latency-value').innerHTML = `${Math.round(average)} <small>ms</small>`;
+            document.getElementById('jitter-value').innerHTML = `${Math.round(jitter)} <small>ms</small>`;
+        }
+        async function measureDownload() {
+            const bytes = 40000000, started = performance.now();
+            const response = await fetch(`https://speed.cloudflare.com/__down?bytes=${bytes}&cacheBust=${Date.now()}`, { cache: 'no-store', mode: 'cors' });
+            const reader = response.body.getReader(); let loaded = 0, lastTime = started;
+            while (true) { const chunk = await reader.read(); if (chunk.done) break; loaded += chunk.value.length; const now = performance.now(); if (now - lastTime > 120) { setSpeed((loaded * 8 / ((now - started) / 1000)) / 1000000); lastTime = now; } }
+            return (loaded * 8 / ((performance.now() - started) / 1000)) / 1000000;
+        }
+        async function measureUpload() {
+            const data = new Blob([new Uint8Array(16000000)], { type: 'application/octet-stream' }), started = performance.now();
+            await fetch(`https://speed.cloudflare.com/__up?cacheBust=${Date.now()}`, { method: 'POST', body: data, mode: 'cors' });
+            return (data.size * 8 / ((performance.now() - started) / 1000)) / 1000000;
+        }
+        function renderHistory() {
+            const items = JSON.parse(localStorage.getItem('signal-tests') || '[]'), target = document.getElementById('history');
+            target.innerHTML = items.length ? items.slice(0, 4).map(item => `<div class="history-row"><span>${item.date}</span><strong>${item.download} ↓ &nbsp; ${item.upload} ↑</strong></div>`).join('') : '<div class="empty">Your completed tests will appear here.</div>';
+        }
+        async function revealPersonalInfo() {
+            const infoButton = document.getElementById('personal-info-button');
+            const target = document.getElementById('personal-info');
+            infoButton.disabled = true; infoButton.textContent = 'Looking up details...'; target.innerHTML = '';
+            try {
+                const response = await fetch('https://ipwho.is/', { cache: 'no-store', mode: 'cors' });
+                if (!response.ok) throw new Error('lookup failed');
+                const network = await response.json();
+                if (network.success === false) throw new Error('lookup failed');
+                const details = [['Public IP', network.ip], ['Provider', network.connection && network.connection.isp], ['Location', [network.city, network.region_code, network.country_code].filter(Boolean).join(', ')], ['Timezone', network.timezone && network.timezone.id], ['ASN', network.connection && network.connection.asn ? `AS${network.connection.asn}` : 'Not available'], ['Connection', navigator.connection && navigator.connection.effectiveType ? navigator.connection.effectiveType.toUpperCase() : 'Not available']];
+                const list = document.createElement('div'); list.className = 'info-list';
+                details.forEach(([label, value]) => { const item = document.createElement('div'); item.className = 'info-item'; const name = document.createElement('span'); name.textContent = label; const content = document.createElement('strong'); content.textContent = value || 'Not available'; item.append(name, content); list.appendChild(item); });
+                target.appendChild(list); infoButton.textContent = 'Refresh personal info';
+            } catch (error) { const message = document.createElement('p'); message.className = 'info-error'; message.textContent = 'Could not retrieve network details. This may be due to a proxy interference, or a network outage.'; target.appendChild(message); infoButton.textContent = 'Try again'; }
+            infoButton.disabled = false;
+        }
+        async function startTest() {
+            button.disabled = true; status.textContent = 'testing';
+            document.getElementById('download-value').innerHTML = '-- <small>Mbps</small>'; document.getElementById('upload-value').innerHTML = '-- <small>Mbps</small>';
+            try {
+                phase.textContent = 'measuring latency'; testType.textContent = 'latency'; await measureLatency();
+                phase.textContent = 'measuring download'; testType.textContent = 'download'; const download = await measureDownload();
+                setSpeed(download); document.getElementById('download-value').innerHTML = `${download.toFixed(1)} <small>Mbps</small>`;
+                phase.textContent = 'measuring upload'; testType.textContent = 'upload'; const upload = await measureUpload();
+                setSpeed(upload); document.getElementById('upload-value').innerHTML = `${upload.toFixed(1)} <small>Mbps</small>`;
+                phase.textContent = 'test complete'; testType.textContent = 'complete'; status.textContent = 'ready';
+                const items = JSON.parse(localStorage.getItem('signal-tests') || '[]'); items.unshift({ date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), download: download.toFixed(1), upload: upload.toFixed(1) }); localStorage.setItem('signal-tests', JSON.stringify(items.slice(0, 8))); renderHistory();
+            } catch (error) { phase.textContent = 'test unavailable · try again'; status.textContent = 'offline'; }
+            button.disabled = false; button.textContent = 'Run again';
+        }
+        button.addEventListener('click', startTest);
+        document.getElementById('personal-info-button').addEventListener('click', revealPersonalInfo);
+        document.getElementById('clear-history').addEventListener('click', () => { localStorage.removeItem('signal-tests'); renderHistory(); });
+        window.addEventListener('resize', drawMeter); renderHistory(); drawMeter();
+    </script>
+</body>
+</html>
