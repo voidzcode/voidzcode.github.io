@@ -5,7 +5,6 @@ function Player(myName, myDate, myScore) {
 }
 
 const players = [
-    
 ];
 
 function displayLeaderboard() {
