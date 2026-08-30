@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aim Trainer World Leaderboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="../../css/topten.css" />
+    <style>
+      body {
+        margin: 0;
+        background-color: skyblue;
+        font-family: "Google Sans", sans-serif;
+        padding: 24px;
+      }
+
+      h1 {
+        margin: 0 0 20px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .leaderboard-card {
+        max-width: 700px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        text-align: left;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      th {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.75rem;
+        opacity: 0.8;
+      }
+
+      tbody tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.04);
+      }
+    </style>
+  </head>
+  <body>
+    <h1 align="center">World Leaderboard</h1>
+    <p align="center">(game is still in development, leaderboard may be glitched or empty.)</p>
+
+    <div class="leaderboard">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-table-body"></tbody>
+      </table>
+    </div>
+
+    <script src="../../js/topten.js"></script>
+  </body>
+</html>
