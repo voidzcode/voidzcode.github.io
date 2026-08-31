@@ -6,10 +6,13 @@
     <title>tools</title>
     <style>
         :root {
-            color-scheme: dark;
-            --accent: #00ff66;
-            --text: #eafff1;
-            --muted: rgba(234, 255, 241, 0.8);
+            --bg: #0f1417;
+            --panel: rgba(20, 25, 28, 0.9);
+            --text: #f4efe8;
+            --muted: #b9b1a8;
+            --accent: #d7a46a;
+            --line: rgba(255,255,255,0.08);
+            --shadow: rgba(0,0,0,0.28);
         }
 
         * {
@@ -25,101 +28,100 @@
             padding: 2rem 1rem;
             font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
             color: var(--text);
-            background: #000;
-            overflow: hidden;
+            background:
+                radial-gradient(circle at top, rgba(215, 164, 106, 0.12), transparent 28%),
+                linear-gradient(180deg, #0c1114 0%, #101619 100%);
         }
 
         body::before {
             content: "";
             position: fixed;
             inset: 0;
-            background:
-                radial-gradient(circle at top left, rgba(0, 255, 102, 0.18), transparent 32%),
-                linear-gradient(135deg, rgba(0, 255, 102, 0.08), transparent 60%);
-            z-index: -2;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-            background-size: 36px 36px;
-            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.95));
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+            mask-image: radial-gradient(circle at center, black 32%, transparent 100%);
             pointer-events: none;
-            z-index: -1;
         }
 
         .panel {
             width: min(92vw, 640px);
             padding: clamp(2rem, 4vw, 3rem);
             text-align: center;
-            border: 1px solid rgba(0, 255, 102, 0.25);
+            border: 1px solid var(--line);
             border-radius: 24px;
-            background: rgba(0, 0, 0, 0.74);
-            box-shadow: 0 0 32px rgba(0, 255, 102, 0.14);
-            backdrop-filter: blur(12px);
+            background: var(--panel);
+            box-shadow: 0 24px 60px var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .eyebrow {
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.8rem;
         }
 
         h1 {
             font-size: clamp(2.6rem, 6vw, 4rem);
             font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: lowercase;
-            color: var(--accent);
-            text-shadow: 0 0 16px rgba(0, 255, 102, 0.35);
+            letter-spacing: -0.06em;
             margin-bottom: 0.8rem;
         }
 
         .subtitle {
             color: var(--muted);
             font-size: 1rem;
-            letter-spacing: 0.08em;
-            opacity: 0.95;
+            line-height: 1.7;
+            margin-bottom: 1.2rem;
+        }
+
+        .button-stack {
+            display: grid;
+            gap: 0.75rem;
         }
 
         .button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-top: 1.6rem;
-            padding: 0.95rem 1.55rem;
+            width: 100%;
+            padding: 0.95rem 1.4rem;
+            border: 1px solid var(--line);
             border-radius: 999px;
             text-decoration: none;
             font-weight: 600;
-            letter-spacing: 0.12em;
-            color: #000;
-            background: linear-gradient(135deg, #00ff66, #00cc52);
-            box-shadow: 0 0 18px rgba(0, 255, 102, 0.24);
-            transition: transform 180ms ease, box-shadow 180ms ease;
+            letter-spacing: 0.08em;
+            background: rgba(255,255,255,0.02);
+            color: var(--text);
+            transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
         }
 
         .button:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 0 26px rgba(0, 255, 102, 0.38);
+            transform: translateY(-2px);
+            border-color: rgba(215, 164, 106, 0.35);
+            background: rgba(215, 164, 106, 0.04);
         }
 
         .button.secondary {
-            margin-top: 0.75rem;
-            color: var(--text);
-            background: rgba(0, 255, 102, 0.08);
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.12);
-        }
-
-        .button.secondary:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 0 18px rgba(0, 255, 102, 0.22);
+            margin-top: 0.8rem;
+            background: rgba(215, 164, 106, 0.08);
+            border-color: rgba(215, 164, 106, 0.18);
+            color: #f1d7b2;
         }
     </style>
 </head>
 <body>
     <main class="panel">
+        <div class="eyebrow">small utilities</div>
         <h1>tools</h1>
-        <p class="subtitle">a clean collection of my favorite and useful tools</p>
-        <a class="button primary" href="https://voidzcode.github.io/tools/ist" target="_blank" rel="noopener noreferrer">Internet Speed Test</a>
-        <button class="button secondary" type="button" onclick="history.back()">Go back</button>
+        <p class="subtitle">a few practical tools for quick checks and everyday browser tasks.</p>
+        <div class="button-stack">
+            <a class="button" href="https://voidzcode.github.io/tools/ist" target="_blank" rel="noopener noreferrer">internet speed test</a>
+            <button class="button secondary" type="button" onclick="history.back()">Go back</button>
+        </div>
     </main>
 <script src="../js/site-audio.js"></script>
 </body>

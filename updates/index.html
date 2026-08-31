@@ -6,15 +6,14 @@
     <title>updates</title>
     <style>
         :root {
-            color-scheme: dark;
-            --bg: #000;
-            --panel: rgba(10, 16, 12, 0.82);
-            --panel-alt: rgba(255, 255, 255, 0.03);
-            --accent: #00ff66;
-            --accent-soft: rgba(0, 255, 102, 0.14);
-            --text: #eafef0;
-            --muted: rgba(234, 254, 240, 0.75);
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #0f1417;
+            --panel: rgba(20, 25, 28, 0.9);
+            --panel-alt: rgba(255,255,255,0.02);
+            --text: #f3efe7;
+            --muted: #bab3aa;
+            --accent: #d7a46a;
+            --accent-soft: rgba(215, 164, 106, 0.12);
+            --border: rgba(255,255,255,0.08);
         }
 
         * {
@@ -23,39 +22,16 @@
             padding: 0;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
             min-height: 100vh;
             padding: 2rem 1rem;
             font-family: "Segoe UI", Inter, system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
             background:
-                radial-gradient(circle at top left, rgba(0,255,102,0.18), transparent 30%),
-                linear-gradient(135deg, rgba(0,255,102,0.08), transparent 60%);
-            z-index: -2;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 32px 32px;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
-            pointer-events: none;
-            z-index: -1;
+                radial-gradient(circle at top, rgba(215, 164, 106, 0.12), transparent 26%),
+                linear-gradient(180deg, #0c1114 0%, #101619 100%);
+            color: var(--text);
         }
 
         .page {
@@ -63,9 +39,9 @@
             margin: 0 auto;
             padding: clamp(1.2rem, 3vw, 2.2rem);
             background: var(--panel);
-            border: 1px solid rgba(0,255,102,0.24);
+            border: 1px solid var(--border);
             border-radius: 24px;
-            box-shadow: 0 0 26px rgba(0,255,102,0.12);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.28);
             backdrop-filter: blur(10px);
         }
 
@@ -77,17 +53,17 @@
             border-radius: 999px;
             text-decoration: none;
             color: var(--text);
-            border: 1px solid rgba(0,255,102,0.18);
-            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
             font-size: 0.9rem;
             font-weight: 600;
             letter-spacing: 0.08em;
-            transition: transform 150ms ease, background 150ms ease;
+            transition: transform 150ms ease, border-color 150ms ease;
         }
 
         .back-btn:hover {
             transform: translateY(-1px);
-            background: rgba(0,255,102,0.08);
+            border-color: rgba(215, 164, 106, 0.3);
         }
 
         .hero {
@@ -112,10 +88,8 @@
         h1 {
             font-size: clamp(2.2rem, 5vw, 3.3rem);
             line-height: 1.1;
-            color: var(--accent);
-            letter-spacing: 0.12em;
-            text-transform: lowercase;
-            text-shadow: 0 0 16px rgba(0,255,102,0.28);
+            color: var(--text);
+            letter-spacing: -0.05em;
         }
 
         .intro {
@@ -142,7 +116,7 @@
             text-decoration: none;
             font-weight: 700;
             letter-spacing: 0.08em;
-            transition: transform 150ms ease, box-shadow 150ms ease;
+            transition: transform 150ms ease, border-color 150ms ease;
         }
 
         .btn:hover {
@@ -150,9 +124,9 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent), #00c94f);
-            color: #02120a;
-            box-shadow: 0 0 18px rgba(0,255,102,0.2);
+            background: var(--accent);
+            color: #17120d;
+            box-shadow: 0 12px 30px rgba(215, 164, 106, 0.15);
         }
 
         .btn-secondary {
@@ -211,7 +185,7 @@
         .filter.active,
         .filter:hover {
             background: var(--accent-soft);
-            border-color: rgba(0,255,102,0.28);
+            border-color: rgba(215, 164, 106, 0.25);
             color: var(--text);
         }
 
